@@ -8,8 +8,8 @@ import nuke
 
 from ..python_util.util import jread, jwrite
 from . import converter
-from ...nuke_util.nuke_util import get_nuke_path
-from ...nuke_util.media_util import get_extension, get_sequence
+from ..nuke_util.nuke_util import get_nuke_path
+from ..nuke_util.media_util import get_extension, get_sequence
 
 data = {}
 
@@ -36,7 +36,7 @@ stock_types = [
     'rough', 'studded', 'cloudy', 'fuming', 'roar', 'beautiful', 'staringat', 'dying', 'stream'
 ]
 
-stock_manager_folder = '{}/stock_manager'.format(get_nuke_path())
+stock_manager_folder = '{}/stock_manager_indexing'.format(get_nuke_path())
 
 index_folder = stock_manager_folder + '/indexed'
 thumbnails_folder = stock_manager_folder + '/thumbnails'

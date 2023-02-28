@@ -7,7 +7,6 @@ import threading
 
 from . import indexing
 
-from PySide2.QtCore import (Qt)
 from PySide2.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                                QPushButton, QTreeWidget, QTreeWidgetItem,
                                QFileDialog, QAbstractItemView, QTreeView)

@@ -10,7 +10,7 @@ from .player_panel import player
 from .stocks_panel import stocks
 from . import indexing
 
-from ...nuke_util.panels import panel_widget
+from ..nuke_util.panels import panel_widget
 
 
 class status_bar(QWidget):

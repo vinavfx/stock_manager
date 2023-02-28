@@ -13,7 +13,7 @@ from PySide2.QtGui import (QIcon, QStandardItemModel)
 from PySide2.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QLineEdit, 
                                QComboBox, QListView, QAbstractItemView, QListWidget, QListWidgetItem, QSpinBox)
 
-from ...nuke_util.nuke_util import get_vina_path
+from ..nuke_util.nuke_util import get_nuke_path
 from .player_panel import slider
 from . import indexing
 
@@ -156,20 +156,20 @@ class stocks(QWidget):
             partial(self.set_grid_display, False))
         self.list_display.setToolTip('List Display')
         self.list_display.setIcon(
-            QIcon('{0}/icons/list.png'.format(get_vina_path())))
+            QIcon('{0}/stock_manager/icons/list.png'.format(get_nuke_path())))
 
         self.grid_display = QPushButton()
         self.grid_display.setCheckable(True)
         self.grid_display.clicked.connect(partial(self.set_grid_display, True))
         self.grid_display.setToolTip('Grid Display')
         self.grid_display.setIcon(
-            QIcon('{0}/icons/grid.png'.format(get_vina_path())))
+            QIcon('{0}/stock_manager/icons/grid.png'.format(get_nuke_path())))
 
         self.refresh_btn = QPushButton()
         self.refresh_btn.clicked.connect(self.refresh_stocks)
         self.refresh_btn.setToolTip('Refresh Stocks')
         self.refresh_btn.setIcon(
-            QIcon('{0}/icons/refresh.png'.format(get_vina_path())))
+            QIcon('{0}/stock_manager/icons/refresh.png'.format(get_nuke_path())))
 
         display_layout.addWidget(self.list_display)
         display_layout.addWidget(self.grid_display)

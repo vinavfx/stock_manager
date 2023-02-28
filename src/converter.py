@@ -5,9 +5,9 @@ import os
 import subprocess
 import nuke
 
-from ...nuke_util.media_util import get_name_no_extension, get_extension, is_sequence, get_sequence
+from ..nuke_util.media_util import get_name_no_extension, get_extension, is_sequence, get_sequence
 from ..python_util.util import sh
-from ..pipeline.deadline_submit import execute_function
+#  from ..pipeline.deadline_submit import execute_function
 
 
 def get_correct_sequence(sequence):
@@ -74,8 +74,8 @@ def convert(src_hash, dst, first_frame, last_frame, is_sequence, is_texture):
             'frames': frames
         }
 
-        execute_function(
-            'vina.stock_manager.converter.convert_with_nuke', convert_data)
+        #  execute_function(
+            #  'vina.stock_manager.converter.convert_with_nuke', convert_data)
 
     return name, output_dir
 
