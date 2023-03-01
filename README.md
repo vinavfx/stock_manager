@@ -14,10 +14,10 @@ not to dirty the code,
 1 - Copy to nuke folder
 ```sh
 # Linux:
-git clone --recursive https://github.com/fcocc77/stock_manager.git "~/.nuke/stock_manager"
+git clone --recursive https://github.com/vinavfx/stock_manager.git "~/.nuke/stock_manager"
 
 # Windows
-git clone --recursive https://github.com/fcocc77/stock_manager.git "C:\Users\<username>\.nuke\stock_manager"
+git clone --recursive https://github.com/vinavfx/stock_manager.git "C:\Users\<username>\.nuke\stock_manager"
 
 # Or manually copy the entire git downloaded folder and its submodules to the nuke user folder
 ```
