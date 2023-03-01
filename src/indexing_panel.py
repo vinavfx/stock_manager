@@ -112,7 +112,9 @@ class dirs_stock(QWidget):
     def refresh_indexs(self):
         self.refresh_index_btn.setText('Stop')
         self.refresh_index_btn.clicked.disconnect()
-        self.status_bar.set_indexing_stock('analyzing')
+
+        nuke.executeInMainThread(
+            self.status_bar.set_indexing_stock, ('analyzing'))
 
         def _stop_threads():
             self.stop_threads = True
@@ -139,7 +141,8 @@ class dirs_stock(QWidget):
         if not item:
             return
 
-        self.status_bar.set_indexing_stock(f, percent)
+        nuke.executeInMainThread(
+            self.status_bar.set_indexing_stock, (f, percent))
 
         self.update_item(item, -1, indexed_stocks)
         self.update_total_stocks()
@@ -159,7 +162,9 @@ class dirs_stock(QWidget):
         self.refresh_index_btn.clicked.connect(self.refresh_indexs)
         self.refresh_index_btn.setEnabled(True)
 
-        self.status_bar.set_indexing_stock('finished')
+        nuke.executeInMainThread(
+            self.status_bar.set_indexing_stock, ('finished'))
+
         self.update_total_stocks()
         nuke.executeInMainThread(self.stocks.clear_and_refresh)
 
@@ -189,7 +194,9 @@ class dirs_stock(QWidget):
 
     def update_total_stocks(self):
         total_stocks = indexing.get_total_stocks()
-        self.status_bar.set_total_stocks(total_stocks)
+
+        nuke.executeInMainThread(
+            self.status_bar.set_total_stocks, (total_stocks))
 
     def add_path(self, path, indexed=False, amount=0):
         item = QTreeWidgetItem()
