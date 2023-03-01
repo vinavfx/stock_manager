@@ -272,7 +272,7 @@ def get_stocks_from_folder(folder):
 
     for root, _, files in os.walk(folder):
         for name in files:
-            file = os.path.join(root, name)
+            file = os.path.join(root, name).replace('\\', '/')
             ext = get_extension(file).lower()
 
             if ext == 'mov' or ext == 'mp4':
@@ -323,7 +323,7 @@ def separate_texture_and_sequence(folder):
         try:
             seq_name, frange = sequence.rsplit(' ', 1)
         except:
-            textures.append(os.path.join(folder, sequence))
+            textures.append(os.path.join(folder, sequence).replace('\\', '/'))
             continue
 
         if not get_extension(seq_name):
@@ -338,7 +338,7 @@ def separate_texture_and_sequence(folder):
             sequences_to_textures.append((seq_name, first_frame, last_frame))
             continue
 
-        sequence = [os.path.join(folder, seq_name),
+        sequence = [os.path.join(folder, seq_name).replace('\\', '/'),
                     first_frame, last_frame, frames, True]
 
         sequences.append(sequence)
@@ -421,7 +421,7 @@ def garbage_remove():
         indexed_folders.append(stock['indexed'])
 
     for name in os.listdir(index_folder):
-        folder = os.path.join(index_folder, name)
+        folder = os.path.join(index_folder, name).replace('\\', '/')
         if folder in indexed_folders:
             continue
 

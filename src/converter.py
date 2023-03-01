@@ -31,8 +31,8 @@ def get_ffmpeg():
         ffprobe = '/usr/bin/ffprobe'
 
     else:
-        ffmpeg = '{}/ffmpeg.exe'.format(get_nuke_path())
-        ffprobe = '{}/ffprobe.exe'.format(get_nuke_path())
+        ffmpeg = '{}/stock_manager/ffmpeg.exe'.format(get_nuke_path())
+        ffprobe = '{}/stock_manager/ffprobe.exe'.format(get_nuke_path())
 
     if not os.path.isfile(ffmpeg):
         ffmpeg = ''
