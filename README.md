@@ -39,6 +39,11 @@ Download ffmpeg manually and copy it to loose stock manager folder as
 <a href="https://ffmpeg.org/download.html#build-windows" target="_blank">ffmpeg.exe</a>
 "C:\Users\username\\.nuke\stock_manager"
 
+# Tips
+
+- If any action that you index does not have a label it is because it is not 
+in the list, you can add the type labels - element in [indexing.py](./src/indexing.py)
+and re-index and that's it
 
 # Screenshots
 
