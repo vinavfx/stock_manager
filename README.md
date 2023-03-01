@@ -35,8 +35,8 @@ sudo dnf -y install ffmpeg
 ```
 - Windows
 
-Download ffmpeg manually and copy it to loose stock manager folder as
-<a href="https://ffmpeg.org/download.html#build-windows" target="_blank">ffmpeg.exe</a>
+Download <a href="https://ffmpeg.org/download.html#build-windows" target="_blank">ffmpeg</a> 
+manually and copy loose <b>ffmpeg.exe</b> and <b>ffprobe.exe</b> to the 'stock_manager' folder
 "C:\Users\username\\.nuke\stock_manager"
 
 # Tips

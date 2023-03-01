@@ -6,6 +6,7 @@ import nuke
 import threading
 
 from . import indexing
+from .converter import get_ffmpeg
 
 from PySide2.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                                QPushButton, QTreeWidget, QTreeWidgetItem,
@@ -110,6 +111,11 @@ class dirs_stock(QWidget):
                 self.add_path(path)
 
     def refresh_indexs(self):
+        ffmpeg, ffprobe = get_ffmpeg()
+        if not ffmpeg or not ffprobe:
+            nuke.message('You need to install <b>ffmpeg</b> and <b>ffprobe</b> to index !')
+            return
+
         self.refresh_index_btn.setText('Stop')
         self.refresh_index_btn.clicked.disconnect()
 

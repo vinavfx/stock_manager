@@ -2,12 +2,14 @@
 # Office: VFX Artist - Senior Compositor
 # Website: vinavfx.com
 import os
+import platform
 import subprocess
 import nuke
 
 from ..nuke_util.media_util import get_name_no_extension, get_extension, is_sequence, get_sequence
 from ..python_util.util import sh
-#  from ..pipeline.deadline_submit import execute_function
+from ..nuke_util.exec import exec_function
+from ..nuke_util.nuke_util import get_nuke_path
 
 
 def get_correct_sequence(sequence):
@@ -22,9 +24,29 @@ def get_correct_sequence(sequence):
 
     return new_sequence
 
+
+def get_ffmpeg():
+    if platform.system() == "Linux":
+        ffmpeg = '/usr/bin/ffmpeg'
+        ffprobe = '/usr/bin/ffprobe'
+
+    else:
+        ffmpeg = '{}/ffmpeg.exe'.format(get_nuke_path())
+        ffprobe = '{}/ffprobe.exe'.format(get_nuke_path())
+
+    if not os.path.isfile(ffmpeg):
+        ffmpeg = ''
+
+    if not os.path.isfile(ffprobe):
+        ffprobe = ''
+
+    return ffmpeg, ffprobe
+
+
 def convert(src_hash, dst, first_frame, last_frame, is_sequence, is_texture):
 
-    ffmpeg = '/usr/bin/ffmpeg'
+    ffmpeg, _ = get_ffmpeg()
+
     src = src_hash
 
     basename = get_name_no_extension(src)
@@ -74,8 +96,8 @@ def convert(src_hash, dst, first_frame, last_frame, is_sequence, is_texture):
             'frames': frames
         }
 
-        #  execute_function(
-            #  'vina.stock_manager.converter.convert_with_nuke', convert_data)
+        exec_function(
+            'stock_manager.stock_manager.converter.convert_with_nuke', convert_data)
 
     return name, output_dir
 
@@ -107,8 +129,9 @@ def convert_with_nuke(data):
 
 
 def get_frames(video):
+    _, ffprobe = get_ffmpeg()
 
-    cmd = ['ffprobe', '-show_entries', 'stream=nb_frames', '-i', video]
+    cmd = [ffprobe, '-show_entries', 'stream=nb_frames', '-i', video]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
     out, _ = process.communicate()
@@ -125,8 +148,10 @@ def get_format(video, start_frame):
 
     start_number = '-start_number {}'.format(start_frame) if is_seq else ''
 
-    cmd = 'ffprobe {} -show_entries stream=width,height -i "{}"'.format(
-        start_number, video)
+    _, ffprobe = get_ffmpeg()
+
+    cmd = '{} {} -show_entries stream=width,height -i "{}"'.format(
+        ffprobe, start_number, video)
 
     out, _ = sh(cmd)
 
