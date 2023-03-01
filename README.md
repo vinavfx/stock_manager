@@ -44,21 +44,25 @@ Download ffmpeg manually and copy it to loose stock manager folder as
 
 - <b>INDEXING</b>
 
-![Alt text](screenshots/indexing.jpg?raw=true)
+<p align="center"> <img src='screenshots/indexing.jpg' width=70%> </p>
 
 - <b>STATUS BAR</b>
 
-![Alt text](screenshots/status_bar.jpg?raw=true)
+<p align="center"> <img src='screenshots/status_bar.jpg' width=70%> </p>
 
 - <b>DISPLAY OPCIONS</b>
 
-![Alt text](screenshots/display.jpg?raw=true)
+<p align="center"> <img src='screenshots/display.jpg' width=70%> </p>
 
 - <b>FILTER BAR</b>
 
-![Alt text](screenshots/filter.jpg?raw=true)
+<p align="center"> <img src='screenshots/filter.jpg' width=70%> </p>
 
-- <b>VIEWER</b>
+- <b>GRID</b> mode
 
-![Alt text](screenshots/viewer.jpg?raw=true)
+<p align="center"> <img src='screenshots/grid.jpg' width=70%> </p>
+
+- <b>LIST</b> mode
+
+<p align="center"> <img src='screenshots/list.jpg' width=70%> </p>
 
