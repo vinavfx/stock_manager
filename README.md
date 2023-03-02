@@ -22,12 +22,17 @@ git clone --recursive https://github.com/vinavfx/stock_manager.git "C:\Users\<us
 # Or manually copy the entire git downloaded folder and its submodules to the nuke user folder
 ```
 
-2 - Copy this line to <b>menu.py</b>
+2 - Copy this line to <b>init.py</b>
 ```python
 import stock_manager
 ```
 
-3 - Dependencies ( <b>FFMPEG</b> )
+3 - Copy this line to <b>menu.py</b>
+```python
+stock_manager.setup()
+```
+
+4 - Dependencies ( <b>FFMPEG</b> )
 - Linux
 ```sh
 # Any redhat distribution clone, for others look for ffmpeg installation method

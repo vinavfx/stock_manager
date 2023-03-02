@@ -125,7 +125,8 @@ def convert_with_nuke(data):
     write.knob('file').setValue(output)
     write.knob('file_type').setValue('jpeg')
 
-    nuke.execute(write, first_frame, first_frame + frames)
+    nuke.execute(write, first_frame, first_frame +
+                 frames, continueOnError=True)
 
 
 def get_frames(video):

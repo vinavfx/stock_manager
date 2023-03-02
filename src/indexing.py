@@ -238,8 +238,10 @@ def create_thumbnail(indexed_stock):
             ref_size = size
             src = pic
 
-    cmd = '/usr/bin/ffmpeg -i "{}" -vf scale=120:-1 -q:v 1 "{}"'.format(
-        src, thumbnail)
+    ffmpeg, _ = converter.get_ffmpeg()
+
+    cmd = '{} -i "{}" -vf scale=120:-1 -q:v 1 "{}"'.format(
+        ffmpeg, src, thumbnail)
 
     os.system(cmd)
 
