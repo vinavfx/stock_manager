@@ -3,9 +3,11 @@
 # Website: vinavfx.com
 
 from PySide2.QtCore import (Qt, QTimeLine)
-from PySide2.QtGui import (QPixmap)
+from PySide2.QtGui import (QPixmap, QIcon)
 from PySide2.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QSlider)
+
+from ..nuke_util.nuke_util import get_nuke_path
 
 class slider(QSlider):
     def __init__(self):
@@ -47,7 +49,9 @@ class player(QWidget):
         self.time_slider.sliderPressed.connect(
             lambda: (self.stop(), self.set_frame_by_percent(self.time_slider.value())))
         self.frame_counter = QLabel('0')
-        self.play_pause_btn = QPushButton('▶')
+        self.play_pause_btn = QPushButton()
+        self.play_pause_btn.setIcon(
+            QIcon('{0}/stock_manager/icons/pause.png'.format(get_nuke_path())))
         self.play_pause_btn.clicked.connect(self.play_pause_toggle)
 
         control_layout.addWidget(self.frame_counter)
@@ -154,9 +158,13 @@ class player(QWidget):
         self.timeline.setFrameRange(self.frame, self.frames)
 
         self.timeline.start()
-        self.play_pause_btn.setText('⏸︎')
+
+        self.play_pause_btn.setIcon(
+            QIcon('{0}/stock_manager/icons/pause.png'.format(get_nuke_path())))
 
     def stop(self):
         self.playing = False
         self.timeline.stop()
-        self.play_pause_btn.setText('▶')
+
+        self.play_pause_btn.setIcon(
+            QIcon('{0}/stock_manager/icons/play.png'.format(get_nuke_path())))

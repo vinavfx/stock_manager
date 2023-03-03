@@ -282,7 +282,7 @@ def get_stocks_from_folder(folder):
                 if not stock in stocks:
                     stocks.append(stock)
 
-            elif ext in ['jpg', 'png', 'exr']:
+            elif ext in ['jpg', 'jpeg', 'tiff', 'tif', 'png', 'exr']:
                 sequence_dir = os.path.dirname(file)
                 if sequence_dir in scanned_dirs:
                     continue

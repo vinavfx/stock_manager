@@ -407,7 +407,7 @@ class stocks(QWidget):
             frames)
 
         if frames == 1:
-            right_text = '<font size=20>廓</font>'
+            right_text = '<font size=4>|||</font>'
 
         text = '<td style="vertical-align: middle;" width="50%" align="left">{}</td><td width="50%" align="right">{}</td>'.format(
             left_text, right_text)
