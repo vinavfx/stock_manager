@@ -251,7 +251,11 @@ def calculate_amount_by_folder():
         indexed['amount'] = 0
 
     for _, stock in get_indexed_stocks().items():
-        data['folders'][stock['folder']]['amount'] += 1
+        folder = stock['folder']
+        if not folder in data['folders']:
+            continue
+
+        data['folders'][folder]['amount'] += 1
 
 
 def save_indexed_folder(folder):
@@ -396,6 +400,10 @@ def refresh_indexs():
     to_delete = []
     for _, stock in data['stocks'].items():
         folder = stock['folder']
+
+        if folder in folders and not os.path.isdir(folder):
+            continue
+
         path = stock['path']
 
         if stock['is_sequence']:
@@ -406,7 +414,8 @@ def refresh_indexs():
             to_delete.append(stock)
 
         if not folder in folders:
-            to_delete.append(stock)
+            if not stock in to_delete:
+                to_delete.append(stock)
 
     for stock in to_delete:
         key = stock['path']
