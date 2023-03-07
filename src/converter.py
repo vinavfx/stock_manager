@@ -84,7 +84,7 @@ def convert(src_hash, dst, first_frame, last_frame, is_sequence, is_texture):
             ffmpeg, src, scale, seconds, output)
 
     _, stdout = sh(cmd)
-    ffmpeg_error = 'Error' in stdout.decode()
+    ffmpeg_error = 'Error' in stdout
 
     if ffmpeg_error:
         convert_data = {
