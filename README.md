@@ -4,6 +4,9 @@ to be able to visualize it and be able to quickly choose the correct stock
 for the shot that requires it. and just it will support Nuke with Python 3,
 not to dirty the code,
 
+Showing: <a href=https://vinavfx.com/blog target='_blank'>https://vinavfx.com/blog</a>
+
+
 # Feautres
 - <b>Quick</b> display of any video or texture in stock
 - <b>Automatic labeling</b> using the name of the file or its folder
