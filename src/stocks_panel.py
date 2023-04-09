@@ -1,17 +1,19 @@
 # Author: Francisco Jose Contreras Cuevas
 # Office: VFX Artist - Senior Compositor
 # Website: vinavfx.com
-
 import os
 import json
 from functools import partial
 from time import time
+from sys import version_info
+
 import nuke
 
 from PySide2.QtCore import (Qt, QSortFilterProxyModel, QSize)
 from PySide2.QtGui import (QIcon, QStandardItemModel)
-from PySide2.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QLineEdit, 
-                               QComboBox, QListView, QAbstractItemView, QListWidget, QListWidgetItem, QSpinBox)
+from PySide2.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QLineEdit,
+                               QComboBox, QListView, QAbstractItemView, QListWidget, QListWidgetItem, QSpinBox,
+                               QMenu, QAction)
 
 from ..nuke_util.nuke_util import get_nuke_path
 from .player_panel import slider
@@ -42,8 +44,38 @@ class stock_view(QListWidget):
 
         self.setStyleSheet(style)
 
-    def dragEnterEvent(self, event):
-        item = self.currentIndex()
+        self.context_menu = QMenu(self)
+
+        self.add_stock_action = QAction("Add Stocks", self)
+        self.add_stock_action.triggered.connect(self.add_stocks)
+        self.context_menu.addAction(self.add_stock_action)
+
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
+
+    def show_context_menu(self, pos):
+        self.context_menu.exec_(self.mapToGlobal(pos))
+
+    def add_stocks(self):
+        for item in self.selectedItems():
+            filename = self.get_filename(item)
+            self.create_read(filename)
+
+    def mouseDoubleClickEvent(self, _):
+        filename = self.get_filename(self.currentIndex())
+        self.create_read(filename)
+
+    def create_read(self, filename):
+
+        file_path, frame_range = filename.rsplit(' ', 1)
+        first_frame, last_frame = frame_range.split('-')
+
+        first_frame = int(first_frame)
+        last_frame = int(last_frame)
+
+        nuke.nodes.Read(file=file_path, first=first_frame, last=last_frame)
+
+    def get_filename(self, item):
         item_data = json.loads(item.data(4))
 
         filename = item_data['path']
@@ -55,7 +87,10 @@ class stock_view(QListWidget):
         else:
             filename = os.path.join(indexed, nuke.getFileNameList(indexed)[0])
 
-        event.mimeData().setText(filename)
+        return filename
+
+    def dragEnterEvent(self, event):
+        event.mimeData().setText(self.get_filename(self.currentIndex()))
         event.accept()
 
     def dropEvent(self, _):
@@ -65,9 +100,12 @@ class stock_view(QListWidget):
         mode = QListView.IconMode if grid_mode else QListView.ListMode
         self.setViewMode(mode)
 
-        self.setDragEnabled(True)
         self.setAcceptDrops(False)
-        self.setDragDropMode(QAbstractItemView.DragDrop)
+
+        if version_info.major == 3:
+            self.setDragEnabled(True)
+            self.setDragDropMode(QAbstractItemView.DragDrop)
+
         self.setDropIndicatorShown(False)
         self.setAlternatingRowColors(not grid_mode)
 
