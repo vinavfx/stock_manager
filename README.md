@@ -1,8 +1,7 @@
 # Stock Manager
 Stock manager for <b>Nuke</b> that indexes the stocks in a lighter version of jpg
 to be able to visualize it and be able to quickly choose the correct stock
-for the shot that requires it. and just it will support Nuke with Python 3,
-not to dirty the code,
+for the shot that requires it. 
 
 Showing: <a href=https://vinavfx.com/blog target='_blank'>https://vinavfx.com/blog</a>
 

@@ -8,7 +8,7 @@ import nuke
 
 from ..nuke_util.media_util import get_name_no_extension, get_extension, is_sequence, get_sequence
 from ..python_util.util import sh
-from ..nuke_util.exec import exec_function
+from ..nuke_util.func_exec import exec_function
 from ..nuke_util.nuke_util import get_nuke_path
 
 
