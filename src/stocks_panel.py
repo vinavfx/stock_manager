@@ -66,14 +66,9 @@ class stock_view(QListWidget):
         self.create_read(filename)
 
     def create_read(self, filename):
+        read = nuke.createNode('Read', inpanel=False)
+        read.knob('file').fromUserText(filename)
 
-        file_path, frame_range = filename.rsplit(' ', 1)
-        first_frame, last_frame = frame_range.split('-')
-
-        first_frame = int(first_frame)
-        last_frame = int(last_frame)
-
-        nuke.nodes.Read(file=file_path, first=first_frame, last=last_frame)
 
     def get_filename(self, item):
         item_data = json.loads(item.data(4))
