@@ -83,7 +83,6 @@ class status_bar(QWidget):
 
 class stock_manager_widget(panel_widget):
     def __init__(self, parent=None):
-
         panel_widget.__init__(self, parent)
         self.mounted = False
 
@@ -134,6 +133,8 @@ class stock_manager_widget(panel_widget):
 
         self.setLayout(layout)
 
-    def showEvent(self, _):
+    def showEvent(self, event):
+        super(stock_manager_widget, self).showEvent(event)
+
         if not self.mounted:
             self.setup()
