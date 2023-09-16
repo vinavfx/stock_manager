@@ -79,11 +79,15 @@ class dirs_stock(QWidget):
         indexing.load_data()
 
         indexed_folder = indexing.get_indexed_folder()
+        stock_folder_list = os.listdir(stock_folder)
 
         for folder, data in indexed_folder.items():
-            self.add_path(folder, data['indexed'], data['amount'])
+            if folder in stock_folder_list:
+                self.add_path(folder, data['indexed'], data['amount'])
+            else:
+                indexing.remove_indexed_folder(folder)
 
-        for d in os.listdir(stock_folder):
+        for d in stock_folder_list:
             if d == 'indexing':
                 continue
 

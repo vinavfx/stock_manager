@@ -8,7 +8,6 @@ import nuke
 
 from ..python_util.util import jread, jwrite
 from . import converter
-from ..nuke_util.nuke_util import get_nuke_path
 from ..nuke_util.media_util import get_extension, get_sequence
 from .settings import get_stock_folder
 
@@ -117,13 +116,16 @@ def get_indexed_folder():
     return data['folders']
 
 
-def clear_indexed_folder():
-    global data
-    data['folders'] = {}
-
-
 def get_indexed_stocks():
     return data['stocks']
+
+
+def remove_indexed_folder(folder):
+    if not folder in data['folders']:
+        return
+
+    del data['folders'][folder]
+    save_data()
 
 
 def get_total_stocks():
