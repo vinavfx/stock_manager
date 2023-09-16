@@ -358,7 +358,8 @@ def separate_texture_and_sequence(folder):
         try:
             seq_name, frange = sequence.rsplit(' ', 1)
         except:
-            textures.append(os.path.join(folder, sequence).replace('\\', '/'))
+            tex_abs = os.path.join(folder, sequence).replace('\\', '/')
+            textures.append(tex_abs.replace(stock_folder + '/', ''))
             continue
 
         if not get_extension(seq_name):
@@ -373,15 +374,16 @@ def separate_texture_and_sequence(folder):
             sequences_to_textures.append((seq_name, first_frame, last_frame))
             continue
 
-        sequence = [os.path.join(folder, seq_name).replace('\\', '/'),
-                    first_frame, last_frame, frames, True]
+        seq_abs = os.path.join(folder, seq_name).replace('\\', '/')
+        seq_relative = seq_abs.replace(stock_folder + '/', '')
 
+        sequence = [seq_relative, first_frame, last_frame, frames, True]
         sequences.append(sequence)
 
     for filename, first, last in sequences_to_textures:
         sequence = os.path.join(folder, filename)
         for texture in get_sequence(sequence, [first, last]):
-            textures.append(texture)
+            textures.append(texture.replace(stock_folder + '/', ''))
 
     return textures, sequences
 
