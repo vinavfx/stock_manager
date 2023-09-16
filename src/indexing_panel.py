@@ -43,7 +43,9 @@ class dirs_stock(QWidget):
         self.set_folder_btn.clicked.connect(self.set_folder)
 
         current_folder = get_setting('current_folder')
-        self.current_folder_label = QLabel(current_folder)
+        current_folder = current_folder if current_folder else ''
+        self.current_folder_label = QLabel(
+            '<font color="{}">{}</font>'.format('lime' if os.path.isdir(current_folder) else 'red', current_folder))
 
         self.refresh_index_btn = QPushButton('Refresh Indexs')
         self.refresh_index_btn.clicked.connect(self.refresh_indexs)
@@ -75,7 +77,9 @@ class dirs_stock(QWidget):
 
         self.tree.clear()
 
-        self.current_folder_label.setText(stock_folder)
+        self.current_folder_label = QLabel(
+            '<font color=lime>{}</font>'.format(stock_folder))
+
         set_setting('current_folder', stock_folder)
         folders = indexing.get_indexed_folder()
 
