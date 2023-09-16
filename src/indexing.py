@@ -10,6 +10,7 @@ from ..python_util.util import jread, jwrite
 from . import converter
 from ..nuke_util.nuke_util import get_nuke_path
 from ..nuke_util.media_util import get_extension, get_sequence
+from .settings import get_stock_folder
 
 data = {}
 
@@ -36,38 +37,54 @@ stock_types = [
     'rough', 'studded', 'cloudy', 'fuming', 'roar', 'beautiful', 'staringat', 'dying', 'stream'
 ]
 
-stock_manager_folder = '{}/stock_manager_indexing'.format(get_nuke_path())
+indexing_folder = ''
+index_folder = ''
+thumbnails_folder = ''
+folders_data = ''
+stocks_data = ''
 
-index_folder = stock_manager_folder + '/indexed'
-thumbnails_folder = stock_manager_folder + '/thumbnails'
-folders_data = stock_manager_folder + '/folders.json'
-stocks_data = stock_manager_folder + '/stocks.json'
 indexing = False
 
-if not os.path.isdir(index_folder):
-    os.makedirs(index_folder)
 
-if not os.path.isdir(thumbnails_folder):
-    os.makedirs(thumbnails_folder)
+def set_indexing_folder():
+    global index_folder, thumbnails_folder, folders_data, stocks_data, indexing_folder, data
+
+    stock_folder = get_stock_folder()
+    if not os.path.isdir(stock_folder):
+        return
+
+    indexing_folder = '{}/indexing'.format(stock_folder)
+
+    index_folder = indexing_folder + '/indexed'
+    thumbnails_folder = indexing_folder + '/thumbnails'
+    folders_data = indexing_folder + '/folders.json'
+    stocks_data = indexing_folder + '/stocks.json'
+
+    if not os.path.isdir(indexing_folder):
+        os.mkdir(indexing_folder)
+
+    if not os.path.isdir(index_folder):
+        os.mkdir(index_folder)
+
+    if not os.path.isdir(thumbnails_folder):
+        os.mkdir(thumbnails_folder)
 
 
 def load_data():
     global data
 
-    if not os.path.isdir(stock_manager_folder):
-        os.mkdir(stock_manager_folder)
+    if not indexing_folder:
+        set_indexing_folder()
 
     if os.path.isfile(folders_data):
         folders = jread(folders_data)
     else:
         folders = {}
-        jwrite(folders_data, folders)
 
     if os.path.isfile(stocks_data):
         stocks = jread(stocks_data)
     else:
         stocks = {}
-        jwrite(stocks_data, stocks)
 
     data = {
         'folders': folders,
@@ -97,6 +114,11 @@ def save_data():
 
 def get_indexed_folder():
     return data['folders']
+
+
+def clear_indexed_folder():
+    global data
+    data['folders'] = {}
 
 
 def get_indexed_stocks():
@@ -438,7 +460,3 @@ def garbage_remove():
 
         remove_stock(folder)
 
-
-def delete_folder(folder):
-    del data['folders'][folder]
-    save_data()

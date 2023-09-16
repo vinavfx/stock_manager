@@ -7,7 +7,7 @@ import threading
 
 from . import indexing
 from .converter import get_ffmpeg
-from .settings import set_setting, get_setting
+from .settings import set_setting, get_stock_folder
 
 from PySide2.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                                QPushButton, QTreeWidget, QTreeWidgetItem, QAbstractItemView)
@@ -40,12 +40,9 @@ class dirs_stock(QWidget):
         buttons_widget.setLayout(buttons_layout)
 
         self.set_folder_btn = QPushButton('Set Folder')
-        self.set_folder_btn.clicked.connect(self.set_folder)
+        self.set_folder_btn.clicked.connect(self.set_folder_dialog)
 
-        current_folder = get_setting('current_folder')
-        current_folder = current_folder if current_folder else ''
-        self.current_folder_label = QLabel(
-            '<font color="{}">{}</font>'.format('lime' if os.path.isdir(current_folder) else 'red', current_folder))
+        self.current_folder_label = QLabel()
 
         self.refresh_index_btn = QPushButton('Refresh Indexs')
         self.refresh_index_btn.clicked.connect(self.refresh_indexs)
@@ -58,39 +55,57 @@ class dirs_stock(QWidget):
         layout.addWidget(self.tree)
         layout.addWidget(buttons_widget)
 
+        self.set_folder(get_stock_folder(), update_tree=False)
+
         for folder, data in indexing.get_indexed_folder().items():
             self.add_path(folder, data['indexed'], data['amount'])
 
         self.update_total_stocks()
 
-    def set_folder(self):
+    def set_folder_dialog(self):
         stock_folder = nuke.getFilename('Set Stock Path')
         if not stock_folder:
             return
 
-        if self.current_folder_label.text() == stock_folder:
+        if get_stock_folder() == stock_folder:
             return
 
-        for i in range(self.tree.topLevelItemCount()):
-            item = self.tree.topLevelItem(i)
-            indexing.delete_folder(item.text(2))
+        self.set_folder(stock_folder)
+
+
+    def set_folder(self, stock_folder, update_tree=True):
+        exist_folder = os.path.isdir(stock_folder)
+
+        self.current_folder_label.setText(
+            '<font color="{}">{}</font>'.format('lime' if exist_folder else 'red', stock_folder))
+
+        if not exist_folder:
+            self.refresh_index_btn.setDisabled(True)
+            return
+
+        self.refresh_index_btn.setDisabled(False)
+
+        set_setting('stock_folder', stock_folder)
+        indexing.set_indexing_folder()
+        indexing.load_data()
+
+        if not update_tree:
+            return
 
         self.tree.clear()
-
-        self.current_folder_label = QLabel(
-            '<font color=lime>{}</font>'.format(stock_folder))
-
-        set_setting('current_folder', stock_folder)
-        folders = indexing.get_indexed_folder()
+        indexing.clear_indexed_folder()
 
         for d in os.listdir(stock_folder):
-            path = os.path.join(stock_folder, d)
-            if not os.path.isdir(path):
+            if d == 'indexing':
                 continue
-            if path in folders:
+
+            path = os.path.join(stock_folder, d)
+
+            if not os.path.isdir(path):
                 continue
 
             self.add_path(path)
+
 
     def refresh_indexs(self):
         ffmpeg, ffprobe = get_ffmpeg()

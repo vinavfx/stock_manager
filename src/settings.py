@@ -35,3 +35,11 @@ def set_setting(key, value):
 def get_setting(key):
     load_settings()
     return settings.get(key)
+
+
+def get_stock_folder():
+    stock_folder = get_setting('stock_folder')
+    if not stock_folder:
+        return ''
+
+    return stock_folder
