@@ -7,6 +7,7 @@ import threading
 
 from . import indexing
 from .converter import get_ffmpeg
+from .settings import set_setting, get_setting
 
 from PySide2.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                                QPushButton, QTreeWidget, QTreeWidgetItem, QAbstractItemView)
@@ -41,7 +42,8 @@ class dirs_stock(QWidget):
         self.set_folder_btn = QPushButton('Set Folder')
         self.set_folder_btn.clicked.connect(self.set_folder)
 
-        self.current_folder_label = QLabel()
+        current_folder = get_setting('current_folder')
+        self.current_folder_label = QLabel(current_folder)
 
         self.refresh_index_btn = QPushButton('Refresh Indexs')
         self.refresh_index_btn.clicked.connect(self.refresh_indexs)
@@ -74,6 +76,7 @@ class dirs_stock(QWidget):
         self.tree.clear()
 
         self.current_folder_label.setText(stock_folder)
+        set_setting('current_folder', stock_folder)
         folders = indexing.get_indexed_folder()
 
         for d in os.listdir(stock_folder):
