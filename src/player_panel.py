@@ -1,6 +1,7 @@
 # Author: Francisco Jose Contreras Cuevas
 # Office: VFX Artist - Senior Compositor
 # Website: vinavfx.com
+import os
 
 from PySide2.QtCore import (Qt, QTimeLine)
 from PySide2.QtGui import (QPixmap, QIcon)
@@ -8,6 +9,7 @@ from PySide2.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QSlider)
 
 from ..nuke_util.nuke_util import get_nuke_path
+from .settings import get_stock_folder
 
 class slider(QSlider):
     def __init__(self):
@@ -74,7 +76,8 @@ class player(QWidget):
         self.time_slider.setEnabled(False)
         self.play_pause_btn.setEnabled(False)
 
-    def set_path(self, name, path, src_frames, resolution):
+    def set_path(self, name, relative_path, src_frames, resolution):
+        path = os.path.join(get_stock_folder(), relative_path)
         self.image_path = path
         self.name = name
         self.resolution = resolution

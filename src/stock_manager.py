@@ -51,7 +51,7 @@ class status_bar(QWidget):
     def set_total_stocks(self, total):
         self.total_label.setText(
             'Total: <font color="#64C8FA">{}</font> stocks'.format(total))
-    
+
 
     def set_current_stock(self, stock):
         width, height = stock['resolution']

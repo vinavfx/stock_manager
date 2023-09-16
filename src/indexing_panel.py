@@ -67,8 +67,11 @@ class dirs_stock(QWidget):
         if not stock_folder:
             return
 
-        if get_stock_folder() == stock_folder:
-            return
+        if stock_folder[-1] == '/':
+            stock_folder = os.path.dirname(stock_folder)
+
+        #  if get_stock_folder() == stock_folder:
+            #  return
 
         self.set_folder(stock_folder)
 
@@ -86,7 +89,7 @@ class dirs_stock(QWidget):
         self.refresh_index_btn.setDisabled(False)
 
         set_setting('stock_folder', stock_folder)
-        indexing.set_indexing_folder()
+        indexing.set_stock_folder()
         indexing.load_data()
 
         if not update_tree:
@@ -171,9 +174,6 @@ class dirs_stock(QWidget):
 
     def update_item(self, item, status, amount):
         item.setText(1, str(amount))
-
-        status = status if os.path.isdir(item.text(2)) else -2
-
         label = self.tree.itemWidget(item, 3)
 
         if not label:
@@ -201,10 +201,11 @@ class dirs_stock(QWidget):
 
     def add_path(self, path, indexed=False, amount=0):
         item = QTreeWidgetItem()
+        basename = os.path.basename(path)
 
-        item.setText(0, os.path.basename(path))
+        item.setText(0, basename)
         item.setText(1, str(amount))
-        item.setText(2, path)
+        item.setText(2, basename)
 
         for i in [0, 1, 2]:
             item.setToolTip(
@@ -214,7 +215,7 @@ class dirs_stock(QWidget):
         self.update_item(item, indexed, amount)
 
         if not indexed:
-            indexing.save_indexed_folder(path)
+            indexing.save_indexed_folder(basename)
 
     def get_item(self, path):
         for i in range(self.tree.topLevelItemCount()):

@@ -18,6 +18,7 @@ from PySide2.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushB
 from ..nuke_util.nuke_util import get_nuke_path
 from .player_panel import slider
 from . import indexing
+from .settings import get_stock_folder
 
 
 class stock_view(QListWidget):
@@ -73,7 +74,7 @@ class stock_view(QListWidget):
     def get_filename(self, item):
         item_data = json.loads(item.data(4))
 
-        filename = item_data['path']
+        filename = os.path.join(get_stock_folder(), item_data['path'])
         indexed = item_data['indexed']
 
         if os.path.isdir(os.path.dirname(filename)):

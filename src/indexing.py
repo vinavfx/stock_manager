@@ -37,6 +37,7 @@ stock_types = [
     'rough', 'studded', 'cloudy', 'fuming', 'roar', 'beautiful', 'staringat', 'dying', 'stream'
 ]
 
+stock_folder = ''
 indexing_folder = ''
 index_folder = ''
 thumbnails_folder = ''
@@ -46,8 +47,8 @@ stocks_data = ''
 indexing = False
 
 
-def set_indexing_folder():
-    global index_folder, thumbnails_folder, folders_data, stocks_data, indexing_folder, data
+def set_stock_folder():
+    global index_folder, thumbnails_folder, folders_data, stocks_data, indexing_folder, data, stock_folder
 
     stock_folder = get_stock_folder()
     if not os.path.isdir(stock_folder):
@@ -74,7 +75,7 @@ def load_data():
     global data
 
     if not indexing_folder:
-        set_indexing_folder()
+        set_stock_folder()
 
     if os.path.isfile(folders_data):
         folders = jread(folders_data)
@@ -146,19 +147,22 @@ def to_index(finished_fn, each_folder_fn, each_fn, stop_threads):
     total_stocks = 0
 
     folders = []
-    for folder, folder_data in get_indexed_folder().items():
+    for relative_folder, folder_data in get_indexed_folder().items():
+        folder = os.path.join(stock_folder, relative_folder)
+
         stocks = []
         for stock in get_stocks_from_folder(folder):
-            path = stock[0]
+            relative_path = stock[0]
+            path = os.path.join(stock_folder, relative_path)
             is_sequence = stock[4]
 
             will_index = False
 
-            if not path in data['stocks']:
+            if not relative_path in data['stocks']:
                 will_index = True
-            elif not os.path.isdir(data['stocks'][path]['indexed']):
+            elif not os.path.isdir(data['stocks'][relative_path]['indexed']):
                 will_index = True
-            elif not os.listdir(data['stocks'][path]['indexed']):
+            elif not os.listdir(data['stocks'][relative_path]['indexed']):
                 will_index = True
 
             if not is_sequence:
@@ -168,11 +172,11 @@ def to_index(finished_fn, each_folder_fn, each_fn, stop_threads):
             if will_index:
                 stocks.append(stock)
             else:
-                create_thumbnail(data['stocks'][path]['indexed'])
+                create_thumbnail(data['stocks'][relative_path]['indexed'])
 
         total_stocks += len(stocks)
 
-        folders.append([folder, folder_data, stocks])
+        folders.append([relative_folder, folder_data, stocks])
 
     general_indexed_stocks = 0
 
@@ -180,8 +184,9 @@ def to_index(finished_fn, each_folder_fn, each_fn, stop_threads):
 
         indexed_stocks = folder_data['amount']
 
-        for path, first_frame, last_frame, frames, is_sequence in stocks:
-            f = os.path.basename(path)
+        for relative_path, first_frame, last_frame, frames, is_sequence in stocks:
+            path = os.path.join(stock_folder, relative_path)
+            f = os.path.basename(relative_path)
 
             if not is_sequence and not frames == 1:
                 frames = converter.get_frames(path)
@@ -201,14 +206,14 @@ def to_index(finished_fn, each_folder_fn, each_fn, stop_threads):
 
             width, height = converter.get_format(path, first_frame)
 
-            data['stocks'][path] = {
-                'path': path,
+            data['stocks'][relative_path] = {
+                'path': relative_path,
                 'element': '',
                 'type': '',
                 'folder': folder,
                 'name': name,
                 'resolution': [width, height],
-                'indexed': indexed_dir,
+                'indexed': indexed_dir.replace(stock_folder + '/', ''),
                 'passes': False,
                 'frames': frames,
                 'first_frame': first_frame,
@@ -300,7 +305,8 @@ def get_stocks_from_folder(folder):
 
     for root, _, files in os.walk(folder):
         for name in files:
-            file = os.path.join(root, name).replace('\\', '/')
+            relative = root.replace(stock_folder + '/', '')
+            file = os.path.join(relative, name).replace('\\', '/')
             ext = get_extension(file).lower()
 
             if ext == 'mov' or ext == 'mp4':
@@ -405,7 +411,8 @@ def detect_element(stock_file):
     return match_to_tags(os.path.basename(os.path.dirname(stock_file)), stock_elements)
 
 
-def remove_stock(indexed_dir):
+def remove_stock(indexed_relative_dir):
+    indexed_dir = os.path.join(stock_folder, indexed_relative_dir)
     if not os.path.isdir(indexed_dir):
         return
 
@@ -451,12 +458,13 @@ def garbage_remove():
 
     indexed_folders = []
     for _, stock in data['stocks'].items():
-        indexed_folders.append(stock['indexed'])
+        indexed_folders.append((stock['indexed']))
 
     for name in os.listdir(index_folder):
-        folder = os.path.join(index_folder, name).replace('\\', '/')
-        if folder in indexed_folders:
+        relative_folder = os.path.join('indexing/indexed', name).replace('\\', '/')
+
+        if relative_folder in indexed_folders:
             continue
 
-        remove_stock(folder)
+        remove_stock(relative_folder)
 
