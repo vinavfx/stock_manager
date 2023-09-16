@@ -306,11 +306,12 @@ def get_stocks_from_folder(folder):
     for root, _, files in os.walk(folder):
         for name in files:
             relative = root.replace(stock_folder + '/', '')
-            file = os.path.join(relative, name).replace('\\', '/')
-            ext = get_extension(file).lower()
+            relative_file = os.path.join(relative, name).replace('\\', '/')
+            file = os.path.join(stock_folder, relative_file)
+            ext = get_extension(relative_file).lower()
 
             if ext == 'mov' or ext == 'mp4':
-                stock = [file, None, None, None,  False]
+                stock = [relative_file, None, None, None,  False]
                 if not stock in stocks:
                     stocks.append(stock)
 

@@ -70,9 +70,6 @@ class dirs_stock(QWidget):
         if stock_folder[-1] == '/':
             stock_folder = os.path.dirname(stock_folder)
 
-        #  if get_stock_folder() == stock_folder:
-            #  return
-
         self.set_folder(stock_folder)
 
 
