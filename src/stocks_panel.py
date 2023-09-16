@@ -222,8 +222,6 @@ class stocks(QWidget):
 
         self.update_filter = True
 
-        self.refresh_stocks()
-
     def set_size(self, size, set_slider=False):
         self.current_size = size
         self.list_widget.set_size(size)

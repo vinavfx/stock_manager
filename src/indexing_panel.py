@@ -55,12 +55,7 @@ class dirs_stock(QWidget):
         layout.addWidget(self.tree)
         layout.addWidget(buttons_widget)
 
-        self.set_folder(get_stock_folder(), update_tree=False)
-
-        for folder, data in indexing.get_indexed_folder().items():
-            self.add_path(folder, data['indexed'], data['amount'])
-
-        self.update_total_stocks()
+        self.set_folder(get_stock_folder())
 
     def set_folder_dialog(self):
         stock_folder = nuke.getFilename('Set Stock Path')
@@ -72,28 +67,21 @@ class dirs_stock(QWidget):
 
         self.set_folder(stock_folder)
 
-
-    def set_folder(self, stock_folder, update_tree=True):
+    def set_folder(self, stock_folder):
         exist_folder = os.path.isdir(stock_folder)
-
         self.current_folder_label.setText(
             '<font color="{}">{}</font>'.format('lime' if exist_folder else 'red', stock_folder))
 
-        if not exist_folder:
-            self.refresh_index_btn.setDisabled(True)
-            return
-
-        self.refresh_index_btn.setDisabled(False)
-
         set_setting('stock_folder', stock_folder)
+
+        self.tree.clear()
         indexing.set_stock_folder()
         indexing.load_data()
 
-        if not update_tree:
-            return
+        indexed_folder = indexing.get_indexed_folder()
 
-        self.tree.clear()
-        indexing.clear_indexed_folder()
+        for folder, data in indexed_folder.items():
+            self.add_path(folder, data['indexed'], data['amount'])
 
         for d in os.listdir(stock_folder):
             if d == 'indexing':
@@ -104,13 +92,19 @@ class dirs_stock(QWidget):
             if not os.path.isdir(path):
                 continue
 
+            if d in indexed_folder:
+                continue
+
             self.add_path(path)
 
+        self.update_total_stocks()
+        self.stocks.refresh_stocks(clear=True)
 
     def refresh_indexs(self):
         ffmpeg, ffprobe = get_ffmpeg()
         if not ffmpeg or not ffprobe:
-            nuke.message('You need to install <b>ffmpeg</b> and <b>ffprobe</b> to index !')
+            nuke.message(
+                'You need to install <b>ffmpeg</b> and <b>ffprobe</b> to index !')
             return
 
         self.refresh_index_btn.setText('Stop')

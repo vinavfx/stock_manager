@@ -97,8 +97,6 @@ class stock_manager_widget(panel_widget):
     def setup(self):
         self.mounted = True
 
-        indexing.load_data()
-
         layout = QVBoxLayout()
         layout.setMargin(0)
 
