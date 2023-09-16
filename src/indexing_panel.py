@@ -78,6 +78,9 @@ class dirs_stock(QWidget):
         indexing.set_stock_folder()
         indexing.load_data()
 
+        if not os.path.isdir(stock_folder):
+            return
+
         indexed_folder = indexing.get_indexed_folder()
         stock_folder_list = os.listdir(stock_folder)
 
