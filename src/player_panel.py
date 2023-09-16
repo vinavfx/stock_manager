@@ -154,7 +154,7 @@ class player(QWidget):
             self.frame = 1
 
         frame_length = (float(self.frames - self.frame) / 30) * 1000
-        self.timeline.setDuration(frame_length)
+        self.timeline.setDuration(int(frame_length))
         self.timeline.setFrameRange(self.frame, self.frames)
 
         self.timeline.start()

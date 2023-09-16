@@ -9,49 +9,7 @@ from . import indexing
 from .converter import get_ffmpeg
 
 from PySide2.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-                               QPushButton, QTreeWidget, QTreeWidgetItem,
-                               QFileDialog, QAbstractItemView, QTreeView)
-
-class dirs_stock_view(QTreeWidget):
-    def __init__(self, add_path):
-        self.add_path = add_path
-        QTreeWidget.__init__(self)
-
-        self.setColumnCount(3)
-        self.setColumnWidth(0, 150)
-        self.setColumnWidth(1, 70)
-        self.setColumnWidth(2, 150)
-
-        self.setHeaderLabels(['Name', 'Amount', 'Path', 'Status'])
-        self.setAlternatingRowColors(True)
-        self.setAcceptDrops(True)
-        self.setSelectionMode(QAbstractItemView.MultiSelection)
-        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
-
-    def dragEnterEvent(self, event):
-        if event.mimeData().hasUrls:
-            event.accept()
-        else:
-            event.ignore()
-
-    def dragMoveEvent(self, event):
-        if event.mimeData().hasUrls:
-            event.accept()
-        else:
-            event.ignore()
-
-    def dropEvent(self, event):
-        if event.mimeData().hasUrls:
-            event.accept()
-            folders = indexing.get_indexed_folder()
-
-            for url in event.mimeData().urls():
-                url = url.toLocalFile()
-
-                if not url in folders:
-                    self.add_path(url)
-        else:
-            event.ignore()
+                               QPushButton, QTreeWidget, QTreeWidgetItem, QAbstractItemView)
 
 
 class dirs_stock(QWidget):
@@ -63,26 +21,35 @@ class dirs_stock(QWidget):
         layout = QVBoxLayout()
         self.setLayout(layout)
 
-        self.tree = dirs_stock_view(self.add_path)
+        self.tree = QTreeWidget()
+        self.tree.setColumnCount(3)
+        self.tree.setColumnWidth(0, 150)
+        self.tree.setColumnWidth(1, 70)
+        self.tree.setColumnWidth(2, 150)
+
+        self.tree.setHeaderLabels(['Name', 'Amount', 'Path', 'Status'])
+        self.tree.setAlternatingRowColors(True)
+        self.tree.setAcceptDrops(True)
+        self.tree.setSelectionMode(QAbstractItemView.MultiSelection)
+        self.tree.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
         buttons_layout = QHBoxLayout()
         buttons_layout.setMargin(0)
         buttons_widget = QWidget()
         buttons_widget.setLayout(buttons_layout)
 
-        self.add_button = QPushButton('+')
-        self.add_button.clicked.connect(lambda: self.add_path_dialog())
+        self.set_folder_btn = QPushButton('Set Folder')
+        self.set_folder_btn.clicked.connect(self.set_folder)
 
-        self.delete_btn = QPushButton('-')
-        self.delete_btn.clicked.connect(lambda: self.delete_path())
+        self.current_folder_label = QLabel()
 
         self.refresh_index_btn = QPushButton('Refresh Indexs')
         self.refresh_index_btn.clicked.connect(self.refresh_indexs)
 
         buttons_layout.addWidget(self.refresh_index_btn)
         buttons_layout.addStretch()
-        buttons_layout.addWidget(self.delete_btn)
-        buttons_layout.addWidget(self.add_button)
+        buttons_layout.addWidget(self.current_folder_label)
+        buttons_layout.addWidget(self.set_folder_btn)
 
         layout.addWidget(self.tree)
         layout.addWidget(buttons_widget)
@@ -92,23 +59,31 @@ class dirs_stock(QWidget):
 
         self.update_total_stocks()
 
-
-    def add_path_dialog(self):
-        dialog = QFileDialog()
-        dialog.setFileMode(QFileDialog.DirectoryOnly)
-        dialog.setOption(QFileDialog.DontUseNativeDialog, True)
-
-        tree = dialog.findChild(QTreeView)
-        tree.setSelectionMode(QAbstractItemView.MultiSelection)
-        tree.setSelectionMode(QAbstractItemView.ExtendedSelection)
-
-        if not dialog.exec_():
+    def set_folder(self):
+        stock_folder = nuke.getFilename('Set Stock Path')
+        if not stock_folder:
             return
 
+        if self.current_folder_label.text() == stock_folder:
+            return
+
+        for i in range(self.tree.topLevelItemCount()):
+            item = self.tree.topLevelItem(i)
+            indexing.delete_folder(item.text(2))
+
+        self.tree.clear()
+
+        self.current_folder_label.setText(stock_folder)
         folders = indexing.get_indexed_folder()
-        for path in dialog.selectedFiles():
-            if not path in folders:
-                self.add_path(path)
+
+        for d in os.listdir(stock_folder):
+            path = os.path.join(stock_folder, d)
+            if not os.path.isdir(path):
+                continue
+            if path in folders:
+                continue
+
+            self.add_path(path)
 
     def refresh_indexs(self):
         ffmpeg, ffprobe = get_ffmpeg()
@@ -136,8 +111,7 @@ class dirs_stock(QWidget):
         ).start()
 
     def refresh_indexs_thread(self, _, stop_threads):
-        self.add_button.setEnabled(False)
-        self.delete_btn.setEnabled(False)
+        self.set_folder_btn.setEnabled(False)
 
         indexing.to_index(self.finished_index,
                           self.each_folder_index, self.each_index, stop_threads)
@@ -161,8 +135,7 @@ class dirs_stock(QWidget):
         self.update_item(item, 1, amount)
 
     def finished_index(self):
-        self.add_button.setEnabled(True)
-        self.delete_btn.setEnabled(True)
+        self.set_folder_btn.setEnabled(True)
         self.refresh_index_btn.setText('Refresh Indexs')
         self.refresh_index_btn.clicked.disconnect()
         self.refresh_index_btn.clicked.connect(self.refresh_indexs)
@@ -229,11 +202,3 @@ class dirs_stock(QWidget):
 
         return None
 
-    def delete_path(self):
-        if not nuke.ask('Are you sure you want to delete {} folders ?'.format(len(self.tree.selectedItems()))):
-            return
-
-        root = self.tree.invisibleRootItem()
-        for item in self.tree.selectedItems():
-            indexing.delete_folder(item.text(2))
-            (item.parent() or root).removeChild(item)
