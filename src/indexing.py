@@ -326,7 +326,8 @@ def get_stocks_from_folder(folder):
 
                 if force_textures:
                     for l in os.listdir(sequence_dir):
-                        texture = os.path.join(sequence_dir, l)
+                        texture = os.path.join(sequence_dir, l).replace(
+                            stock_folder + '/', '')
                         stock = [texture, 1, 1, 1, False]
                         if not stock in stocks:
                             stocks.append(stock)
