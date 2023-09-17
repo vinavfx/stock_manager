@@ -46,6 +46,118 @@ stocks_data = ''
 indexing = False
 
 
+def to_index(finished_fn, each_folder_fn, each_fn, stop_threads):
+    global indexing
+    indexing = True
+
+    refresh_indexs()
+
+    total_stocks = 0
+
+    folders = []
+    for relative_folder, folder_data in get_indexed_folder().items():
+        if folder_data['indexed']:
+            continue
+
+        folder = os.path.join(stock_folder, relative_folder)
+
+        stocks = []
+        for stock in get_stocks_from_folder(folder):
+            relative_path = stock[0]
+            path = os.path.join(stock_folder, relative_path)
+            is_sequence = stock[4]
+
+            will_index = False
+            indexed_dir = ''
+
+            if not relative_path in data['stocks']:
+                will_index = True
+            else:
+                indexed_dir = os.path.join(
+                    stock_folder, data['stocks'][relative_path]['indexed'])
+
+                if not os.path.isdir(indexed_dir):
+                    will_index = True
+                elif not os.listdir(indexed_dir):
+                    will_index = True
+
+            if not is_sequence:
+                if os.path.getsize(path) < 10000:
+                    continue
+
+            if will_index:
+                stocks.append(stock)
+            else:
+                create_thumbnail(indexed_dir)
+
+        total_stocks += len(stocks)
+        folders.append([relative_folder, folder_data, stocks])
+
+    general_indexed_stocks = 0
+
+    for folder, folder_data, stocks in folders:
+        indexed_stocks = folder_data['amount']
+
+        for relative_path, first_frame, last_frame, frames, is_sequence in stocks:
+            path = os.path.join(stock_folder, relative_path)
+            f = os.path.basename(relative_path)
+
+            if not is_sequence and not frames == 1:
+                frames = converter.get_frames(path)
+                first_frame = 1
+                last_frame = frames
+
+            general_indexed_stocks += 1
+            percent = int(general_indexed_stocks * 100 / total_stocks)
+
+            name, indexed_dir = converter.convert(
+                path, index_folder, first_frame, last_frame, is_sequence, frames == 1)
+
+            create_thumbnail(indexed_dir)
+
+            indexed_stocks += 1
+            each_fn(f, folder, percent, indexed_stocks)
+
+            width, height = converter.get_format(path, first_frame)
+
+            data['stocks'][relative_path] = {
+                'path': relative_path,
+                'element': '',
+                'type': '',
+                'folder': folder,
+                'name': name,
+                'resolution': [width, height],
+                'indexed': os.path.relpath(indexed_dir, stock_folder),
+                'passes': False,
+                'frames': frames,
+                'first_frame': first_frame,
+                'last_frame': last_frame,
+                'is_sequence': is_sequence
+            }
+
+            if stop_threads():
+                break
+
+        each_folder_fn(folder, indexed_stocks, 2 if stop_threads() else 1)
+        data['folders'][folder]['indexed'] = False if stop_threads() else True
+        save_folders()
+
+        if stop_threads():
+            break
+
+    update_stocks_tag()
+    calculate_amount_by_folder()
+
+    if not stop_threads():
+        garbage_remove()
+
+    save_folders()
+    save_stocks()
+
+    finished_fn()
+    indexing = False
+
+
 def set_stock_folder():
     global index_folder, thumbnails_folder, folders_data, stocks_data, indexing_folder, data, stock_folder
 
@@ -144,120 +256,6 @@ def get_total_stocks():
 
 def is_indexing():
     return indexing
-
-
-def to_index(finished_fn, each_folder_fn, each_fn, stop_threads):
-    global indexing
-    indexing = True
-
-    refresh_indexs()
-
-    total_stocks = 0
-
-    folders = []
-    for relative_folder, folder_data in get_indexed_folder().items():
-        if folder_data['indexed']:
-            continue
-
-        folder = os.path.join(stock_folder, relative_folder)
-
-        stocks = []
-        for stock in get_stocks_from_folder(folder):
-            relative_path = stock[0]
-            path = os.path.join(stock_folder, relative_path)
-            is_sequence = stock[4]
-
-            will_index = False
-            indexed_dir = ''
-
-            if not relative_path in data['stocks']:
-                will_index = True
-            else:
-                indexed_dir = os.path.join(
-                    stock_folder, data['stocks'][relative_path]['indexed'])
-
-                if not os.path.isdir(indexed_dir):
-                    will_index = True
-                elif not os.listdir(indexed_dir):
-                    will_index = True
-
-            if not is_sequence:
-                if os.path.getsize(path) < 10000:
-                    continue
-
-            if will_index:
-                stocks.append(stock)
-            else:
-                create_thumbnail(indexed_dir)
-
-        total_stocks += len(stocks)
-
-        folders.append([relative_folder, folder_data, stocks])
-
-    general_indexed_stocks = 0
-
-    for folder, folder_data, stocks in folders:
-
-        indexed_stocks = folder_data['amount']
-
-        for relative_path, first_frame, last_frame, frames, is_sequence in stocks:
-            path = os.path.join(stock_folder, relative_path)
-            f = os.path.basename(relative_path)
-
-            if not is_sequence and not frames == 1:
-                frames = converter.get_frames(path)
-                first_frame = 1
-                last_frame = frames
-
-            general_indexed_stocks += 1
-            percent = int(general_indexed_stocks * 100 / total_stocks)
-
-            name, indexed_dir = converter.convert(
-                path, index_folder, first_frame, last_frame, is_sequence, frames == 1)
-
-            create_thumbnail(indexed_dir)
-
-            indexed_stocks += 1
-            each_fn(f, folder, percent, indexed_stocks)
-
-            width, height = converter.get_format(path, first_frame)
-
-            data['stocks'][relative_path] = {
-                'path': relative_path,
-                'element': '',
-                'type': '',
-                'folder': folder,
-                'name': name,
-                'resolution': [width, height],
-                'indexed': os.path.relpath(indexed_dir, stock_folder),
-                'passes': False,
-                'frames': frames,
-                'first_frame': first_frame,
-                'last_frame': last_frame,
-                'is_sequence': is_sequence
-            }
-
-            if stop_threads():
-                break
-
-        each_folder_fn(folder, indexed_stocks, 2 if stop_threads() else 1)
-        data['folders'][folder]['indexed'] = False if stop_threads() else True
-        save_folders()
-
-        if stop_threads():
-            break
-
-    update_stocks_tag()
-    calculate_amount_by_folder()
-
-    if not stop_threads():
-        garbage_remove()
-
-    save_folders()
-    save_stocks()
-
-    finished_fn()
-    indexing = False
 
 
 def update_stocks_tag():
@@ -483,10 +481,10 @@ def garbage_remove():
         indexed_folders.append((stock['indexed']))
 
     for name in os.listdir(index_folder):
-        relative_folder = os.path.join('indexing/indexed', name).replace('\\', '/')
+        relative_folder = os.path.join(
+            'indexing/indexed', name).replace('\\', '/')
 
         if relative_folder in indexed_folders:
             continue
 
         remove_stock(relative_folder)
-

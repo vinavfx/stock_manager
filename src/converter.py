@@ -45,7 +45,6 @@ def get_ffmpeg():
 
 def convert(src_hash, dst, first_frame, last_frame, is_sequence, is_texture):
     ffmpeg, _ = get_ffmpeg()
-
     src = src_hash
 
     basename = get_name_no_extension(src)
@@ -60,6 +59,13 @@ def convert(src_hash, dst, first_frame, last_frame, is_sequence, is_texture):
 
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
+
+    total_rendered = len(os.listdir(output_dir))
+
+    if is_texture and total_rendered:
+        return name, output_dir
+    elif total_rendered > 10:
+        return name, output_dir
 
     output = '{}/{}_%d.jpg'.format(output_dir, name)
 
