@@ -168,16 +168,18 @@ def to_index(finished_fn, each_folder_fn, each_fn, stop_threads):
             is_sequence = stock[4]
 
             will_index = False
-
-            indexed_dir = os.path.join(
-                stock_folder, data['stocks'][relative_path]['indexed'])
+            indexed_dir = ''
 
             if not relative_path in data['stocks']:
                 will_index = True
-            elif not os.path.isdir(indexed_dir):
-                will_index = True
-            elif not os.listdir(indexed_dir):
-                will_index = True
+            else:
+                indexed_dir = os.path.join(
+                    stock_folder, data['stocks'][relative_path]['indexed'])
+
+                if not os.path.isdir(indexed_dir):
+                    will_index = True
+                elif not os.listdir(indexed_dir):
+                    will_index = True
 
             if not is_sequence:
                 if os.path.getsize(path) < 10000:
