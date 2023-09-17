@@ -131,11 +131,22 @@ class dirs_stock(QWidget):
         self.update_total_stocks()
         self.stocks.refresh_stocks(clear=True)
 
-    def refresh_indexs(self):
+    def check(self):
         ffmpeg, ffprobe = get_ffmpeg()
         if not ffmpeg or not ffprobe:
             nuke.message(
                 'You need to install <b>ffmpeg</b> and <b>ffprobe</b> to index !')
+            return
+
+        image_magick = '/usr/bin/identify'
+        if not os.path.isfile(image_magick):
+            nuke.message('Image Magick: not found "{}"'.format(image_magick))
+            return
+
+        return True
+
+    def refresh_indexs(self):
+        if not self.check():
             return
 
         self.refresh_index_btn.setText('Stop')

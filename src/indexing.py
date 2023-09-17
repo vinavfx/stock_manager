@@ -224,7 +224,7 @@ def to_index(finished_fn, each_folder_fn, each_fn, stop_threads):
                 'folder': folder,
                 'name': name,
                 'resolution': [width, height],
-                'indexed': indexed_dir.replace(stock_folder + '/', ''),
+                'indexed': os.path.relpath(indexed_dir, stock_folder),
                 'passes': False,
                 'frames': frames,
                 'first_frame': first_frame,
@@ -318,7 +318,7 @@ def get_stocks_from_folder(folder):
 
     for root, _, files in os.walk(folder):
         for name in files:
-            relative = root.replace(stock_folder + '/', '')
+            relative = os.path.relpath(root, stock_folder)
             relative_file = os.path.join(relative, name).replace('\\', '/')
             file = os.path.join(stock_folder, relative_file)
             ext = get_extension(relative_file).lower()
@@ -337,8 +337,8 @@ def get_stocks_from_folder(folder):
 
                 if force_textures:
                     for l in os.listdir(sequence_dir):
-                        texture = os.path.join(sequence_dir, l).replace(
-                            stock_folder + '/', '')
+                        texture = os.path.relpath(
+                            os.path.join(sequence_dir, l), stock_folder)
                         stock = [texture, 1, 1, 1, False]
                         if not stock in stocks:
                             stocks.append(stock)
@@ -373,7 +373,7 @@ def separate_texture_and_sequence(folder):
             seq_name, frange = sequence.rsplit(' ', 1)
         except:
             tex_abs = os.path.join(folder, sequence).replace('\\', '/')
-            textures.append(tex_abs.replace(stock_folder + '/', ''))
+            textures.append(os.path.relpath(tex_abs, stock_folder))
             continue
 
         if not get_extension(seq_name):
@@ -389,7 +389,7 @@ def separate_texture_and_sequence(folder):
             continue
 
         seq_abs = os.path.join(folder, seq_name).replace('\\', '/')
-        seq_relative = seq_abs.replace(stock_folder + '/', '')
+        seq_relative = os.path.relpath(seq_abs, stock_folder)
 
         sequence = [seq_relative, first_frame, last_frame, frames, True]
         sequences.append(sequence)
@@ -397,7 +397,7 @@ def separate_texture_and_sequence(folder):
     for filename, first, last in sequences_to_textures:
         sequence = os.path.join(folder, filename)
         for texture in get_sequence(sequence, [first, last]):
-            textures.append(texture.replace(stock_folder + '/', ''))
+            textures.append(os.path.relpath(texture, stock_folder))
 
     return textures, sequences
 
