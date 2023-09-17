@@ -120,6 +120,13 @@ def get_indexed_stocks():
     return data['stocks']
 
 
+def set_folder_value(folder, key, value):
+    global data
+    data['folders'][folder][key] = value
+
+    save_data()
+
+
 def remove_indexed_folder(folder):
     if not folder in data['folders']:
         return
@@ -150,6 +157,9 @@ def to_index(finished_fn, each_folder_fn, each_fn, stop_threads):
 
     folders = []
     for relative_folder, folder_data in get_indexed_folder().items():
+        if folder_data['indexed']:
+            continue
+
         folder = os.path.join(stock_folder, relative_folder)
 
         stocks = []

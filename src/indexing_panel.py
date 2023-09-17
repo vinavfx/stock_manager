@@ -9,7 +9,8 @@ from . import indexing
 from .converter import get_ffmpeg
 from .settings import set_setting, get_stock_folder
 
-from PySide2.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+from PySide2.QtCore import Qt
+from PySide2.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QMenu, QAction,
                                QPushButton, QTreeWidget, QTreeWidgetItem, QAbstractItemView)
 
 
@@ -34,6 +35,9 @@ class dirs_stock(QWidget):
         self.tree.setSelectionMode(QAbstractItemView.MultiSelection)
         self.tree.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
+        self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tree.customContextMenuRequested.connect(self.show_menu)
+
         buttons_layout = QHBoxLayout()
         buttons_layout.setMargin(0)
         buttons_widget = QWidget()
@@ -56,6 +60,26 @@ class dirs_stock(QWidget):
         layout.addWidget(buttons_widget)
 
         self.set_folder(get_stock_folder())
+
+    def show_menu(self, pos):
+        item = self.tree.itemAt(pos)
+        if not item:
+            return
+
+        menu = QMenu(self)
+
+        def rescan():
+            for i in self.tree.selectedItems():
+                self.update_item(i, 2)
+                value = i.text(0) == 'Indexed'
+                indexing.set_folder_value(i.text(0), 'indexed', value)
+
+        rescan_action = QAction('Rescan Folder', self)
+        rescan_action.triggered.connect(rescan)
+
+        menu.addAction(rescan_action)
+
+        menu.exec_(self.tree.mapToGlobal(pos))
 
     def set_folder_dialog(self):
         stock_folder = nuke.getFilename('Set Stock Path')
@@ -170,8 +194,10 @@ class dirs_stock(QWidget):
         self.update_total_stocks()
         nuke.executeInMainThread(self.stocks.clear_and_refresh)
 
-    def update_item(self, item, status, amount):
-        item.setText(1, str(amount))
+    def update_item(self, item, status, amount=-1):
+        if not amount == -1:
+            item.setText(1, str(amount))
+
         label = self.tree.itemWidget(item, 3)
 
         if not label:
@@ -181,9 +207,6 @@ class dirs_stock(QWidget):
         if status == -1:
             label.setStyleSheet('QLabel {color: rgb(255, 255, 0);}')
             label.setText('Indexing...')
-        elif status == -2:
-            label.setText('Disconnected')
-            label.setStyleSheet('QLabel {color: rgb(255, 0, 0);}')
         elif status == 1:
             label.setStyleSheet('QLabel {color: rgb(100, 255, 0);}')
             label.setText('Indexed')
