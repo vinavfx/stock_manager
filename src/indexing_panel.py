@@ -174,12 +174,12 @@ class dirs_stock(QWidget):
         self.update_item(item, -1, indexed_stocks)
         self.update_total_stocks()
 
-    def each_folder_index(self, folder, amount):
+    def each_folder_index(self, folder, amount, status):
         item = self.get_item(folder)
         if not item:
             return
 
-        self.update_item(item, 1, amount)
+        self.update_item(item, status, amount)
 
     def finished_index(self):
         self.set_folder_btn.setEnabled(True)

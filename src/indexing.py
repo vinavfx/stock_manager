@@ -92,12 +92,12 @@ def load_data():
     }
 
 
-def save_data():
-    global data
+def save_folders():
+    jwrite(folders_data, data['folders'])
 
-    new_data = {}
-    new_data['folders'] = data['folders']
-    new_data['stocks'] = {}
+
+def save_stocks():
+    stocks = {}
 
     for key, stock in data['stocks'].items():
         _stock = stock.copy()
@@ -106,10 +106,9 @@ def save_data():
             if k in _stock:
                 del _stock[k]
 
-        new_data['stocks'][key] = _stock
+        stocks[key] = _stock
 
-    jwrite(stocks_data, new_data['stocks'])
-    jwrite(folders_data, new_data['folders'])
+    jwrite(stocks_data, stocks)
 
 
 def get_indexed_folder():
@@ -124,7 +123,7 @@ def set_folder_value(folder, key, value):
     global data
     data['folders'][folder][key] = value
 
-    save_data()
+    save_folders()
 
 
 def remove_indexed_folder(folder):
@@ -132,7 +131,7 @@ def remove_indexed_folder(folder):
         return
 
     del data['folders'][folder]
-    save_data()
+    save_folders()
 
 
 def get_total_stocks():
@@ -236,8 +235,9 @@ def to_index(finished_fn, each_folder_fn, each_fn, stop_threads):
             if stop_threads():
                 break
 
-        each_folder_fn(folder, indexed_stocks)
-        data['folders'][folder]['indexed'] = True
+        each_folder_fn(folder, indexed_stocks, 2 if stop_threads() else 1)
+        data['folders'][folder]['indexed'] = False if stop_threads() else True
+        save_folders()
 
         if stop_threads():
             break
@@ -248,7 +248,8 @@ def to_index(finished_fn, each_folder_fn, each_fn, stop_threads):
     if not stop_threads():
         garbage_remove()
 
-    save_data()
+    save_folders()
+    save_stocks()
 
     finished_fn()
     indexing = False
@@ -305,7 +306,7 @@ def save_indexed_folder(folder):
         'amount': 0
     }
 
-    save_data()
+    save_folders()
 
 
 def get_stocks_from_folder(folder):
