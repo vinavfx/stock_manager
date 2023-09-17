@@ -58,10 +58,8 @@ def convert(src_hash, dst, first_frame, last_frame, is_sequence, is_texture):
     output_dir = '{}/{}_{}'.format(dst,
                                    os.path.basename(os.path.dirname(src)), name)
 
-    if os.path.isdir(output_dir):
-        return name, output_dir
-
-    os.mkdir(output_dir)
+    if not os.path.isdir(output_dir):
+        os.mkdir(output_dir)
 
     output = '{}/{}_%d.jpg'.format(output_dir, name)
 

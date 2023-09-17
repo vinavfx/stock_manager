@@ -169,11 +169,14 @@ def to_index(finished_fn, each_folder_fn, each_fn, stop_threads):
 
             will_index = False
 
+            indexed_dir = os.path.join(
+                stock_folder, data['stocks'][relative_path]['indexed'])
+
             if not relative_path in data['stocks']:
                 will_index = True
-            elif not os.path.isdir(data['stocks'][relative_path]['indexed']):
+            elif not os.path.isdir(indexed_dir):
                 will_index = True
-            elif not os.listdir(data['stocks'][relative_path]['indexed']):
+            elif not os.listdir(indexed_dir):
                 will_index = True
 
             if not is_sequence:
@@ -183,7 +186,7 @@ def to_index(finished_fn, each_folder_fn, each_fn, stop_threads):
             if will_index:
                 stocks.append(stock)
             else:
-                create_thumbnail(data['stocks'][relative_path]['indexed'])
+                create_thumbnail(indexed_dir)
 
         total_stocks += len(stocks)
 
