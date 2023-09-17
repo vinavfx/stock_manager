@@ -44,7 +44,6 @@ def get_ffmpeg():
 
 
 def convert(src_hash, dst, first_frame, last_frame, is_sequence, is_texture):
-
     ffmpeg, _ = get_ffmpeg()
 
     src = src_hash
@@ -79,7 +78,7 @@ def convert(src_hash, dst, first_frame, last_frame, is_sequence, is_texture):
             ffmpeg, first_frame, src, scale, frames, output)
 
     else:
-        seconds = frames / 24
+        seconds = float(frames) / 24.0
         cmd = '{} -i "{}" -vf scale={}:-1 -q:v 1 -ss 0 -t {} "{}"'.format(
             ffmpeg, src, scale, seconds, output)
 
