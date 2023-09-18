@@ -126,7 +126,7 @@ class dirs_stock(QWidget):
             if d in indexed_folder:
                 continue
 
-            self.add_path(path)
+            self.add_path(path, save_data=True)
 
         self.update_total_stocks()
         self.stocks.refresh_stocks(clear=True)
@@ -231,7 +231,7 @@ class dirs_stock(QWidget):
         nuke.executeInMainThread(
             self.status_bar.set_total_stocks, (total_stocks))
 
-    def add_path(self, path, indexed=False, amount=0):
+    def add_path(self, path, indexed=False, amount=0, save_data=False):
         item = QTreeWidgetItem()
         basename = os.path.basename(path)
 
@@ -246,7 +246,7 @@ class dirs_stock(QWidget):
         self.tree.addTopLevelItem(item)
         self.update_item(item, indexed, amount)
 
-        if not indexed:
+        if save_data:
             indexing.save_indexed_folder(basename)
 
     def get_item(self, path):
