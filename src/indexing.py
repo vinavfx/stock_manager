@@ -9,7 +9,7 @@ import nuke
 
 from ..python_util.util import jread, jwrite
 from . import converter
-from ..nuke_util.media_util import get_extension, get_sequence, get_name_no_extension
+from ..nuke_util.media_util import get_extension, get_sequence
 from .settings import get_stock_folder
 
 data = {}

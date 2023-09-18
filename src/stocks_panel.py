@@ -150,6 +150,8 @@ class stocks(QWidget):
             self.filter_widget_update)
 
         self.search_filter = QLineEdit()
+        self.search_filter.setMaximumWidth(200)
+        self.search_filter.setMinimumWidth(100)
         self.search_filter.textChanged.connect(self.filter_update)
         self.search_filter.setPlaceholderText('Search Element')
 
