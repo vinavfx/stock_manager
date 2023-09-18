@@ -273,7 +273,7 @@ class stocks(QWidget):
             if current_folder and not folder_name == current_folder and not current_folder == 'All':
                 continue
 
-            element = stock['element'].capitalize()
+            element = ' '.join(w.capitalize() for w in stock['element'].split())
             if not element in element_items:
                 element_items.append(element)
 
@@ -287,7 +287,8 @@ class stocks(QWidget):
                 if not current_element.lower() == stock['element'] and not current_element == 'All':
                     continue
 
-            _type = stock['type'].capitalize()
+            _type = ' '.join(w.capitalize() for w in stock['type'].split())
+
             if not _type in type_items:
                 type_items.append(_type)
 

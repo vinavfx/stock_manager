@@ -3,38 +3,16 @@
 # Website: vinavfx.com
 
 import os
+import re
 import shutil
 import nuke
 
 from ..python_util.util import jread, jwrite
 from . import converter
-from ..nuke_util.media_util import get_extension, get_sequence
+from ..nuke_util.media_util import get_extension, get_sequence, get_name_no_extension
 from .settings import get_stock_folder
 
 data = {}
-
-stock_elements = [
-    'atmosphere', 'blood', 'charge', 'couch', 'debris', 'lightbulb', 'cement', 'rock', 'wood', 'dust',
-    'particle', 'fire', 'torch', 'glass', 'flash', 'cork', 'powder', 'smoke', 'spark', 'fireball',
-    'welding', 'wall', 'shell', 'water', 'rain', 'hole', 'metal', 'concrete', 'flesh', 'windshield',
-    'snow', 'embers', 'fog', 'paint', 'combust', 'ink', 'slime', 'bokeh', 'rain', 'brick', 'fabric',
-    'camouflage', 'carpet', 'trims', 'leather', 'rattan', 'fruit', 'seeds', 'spices', 'vegetables', 'food',
-    'crackles', 'grunge', 'paper', 'scratches', 'landscapes', 'metal', 'flower', 'plaster', 'plastic',
-    'rubber', 'tape', 'styrefoam', 'skies', 'foam', 'plain', 'waterfall', 'wrinkles', 'tiles'
-]
-
-stock_types = [
-    'burst', 'hit', 'splat', 'squirt', 'close', 'side', 'bouncing', 'collapse', 'fall',
-    'fllying', 'shatter', 'dirt', 'cam', 'blowout', 'wave', 'explosion', 'day', 'wide',
-    'turbulent', 'big', 'small', 'windy', 'smash', 'automatic', 'suppressed', 'straight', 'dark',
-    'puffy', 'wisp', 'crack', 'slow', 'front', 'blast', 'burn', 'grunge', 'exploding', 'shadow',
-    'beauty', 'medium', 'rising', 'mid', 'throw', 'explode', 'slomo', 'rampant', 'blot', 'chamber',
-    'run', 'drip', 'rings', 'rolling', 'tendril', 'surface', 'pull', 'thin', 'tear', 'drop', 'pool',
-    'large', 'flicker', 'pulsating', 'shaky', 'steady', 'dense', 'sparkles', 'fleck', 'lit', 'speck',
-    'gold', 'silver', 'heavy', 'dirty', 'messy', 'persian', 'weird', 'marbled', 'bare', 'base', 'leaking',
-    'galvanized', 'painted', 'clear', 'dusk', 'partial', 'sunset', 'overcast', 'cirrus', 'burned', 'ends',
-    'rough', 'studded', 'cloudy', 'fuming', 'roar', 'beautiful', 'staringat', 'dying', 'stream'
-]
 
 stock_folder = ''
 indexing_folder = ''
@@ -258,12 +236,6 @@ def is_indexing():
     return indexing
 
 
-def update_stocks_tag():
-    for path, stock in get_indexed_stocks().items():
-        stock['element'] = detect_element(path)
-        stock['type'] = detect_type(path)
-
-
 def create_thumbnail(indexed_stock):
     thumbnail = '{}/{}.jpg'.format(thumbnails_folder,
                                    os.path.basename(indexed_stock))
@@ -405,30 +377,52 @@ def separate_texture_and_sequence(folder):
     return textures, sequences
 
 
-def match_to_tags(name, tags):
-    matches = []
-
-    for tag in tags:
-        if tag in name.lower():
-            matches.append(tag)
-
-    if not matches:
-        return 'not labeled'
-
-    return max(matches, key=len)
+def update_stocks_tag():
+    for path, stock in get_indexed_stocks().items():
+        stock['element'] = detect_folder(path)
+        stock['type'] = detect_element(path)
 
 
-def detect_type(stock_file):
-    stock_name = os.path.basename(stock_file)
-    return match_to_tags(stock_name, stock_types)
+def word_separator(text):
+    min_word_size = 2
+
+    words = re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z]|$)', text)
+    words = [w.lower() for w in words if len(w) > min_word_size]
+    return words
 
 
 def detect_element(stock_file):
-    _type = match_to_tags(os.path.basename(stock_file), stock_elements)
-    if not _type == 'not labeled':
-        return _type
+    folder = os.path.join(stock_folder, os.path.dirname(stock_file))
 
-    return match_to_tags(os.path.basename(os.path.dirname(stock_file)), stock_elements)
+    folder_words = word_separator(os.path.basename(folder))
+    file_words = word_separator(get_name_no_extension(stock_file))
+
+    words = [w for w in file_words if not any(
+        w in fw for fw in folder_words)]
+
+    if not words:
+        return ' '.join(folder_words)
+
+    return ' '.join(words)
+
+
+def detect_folder(stock_file):
+    root_stock = word_separator(stock_file.split('/')[0])
+
+    parent = os.path.dirname(stock_file)
+    grandparent = os.path.dirname(parent)
+
+    parent_name = word_separator(os.path.basename(parent))
+    grandparent_name = word_separator(os.path.basename(grandparent))
+
+    if (not grandparent_name) or (parent_name == grandparent_name) or (grandparent_name == root_stock):
+        name = ' '.join(parent_name)
+    else:
+        first_name = ' '.join(grandparent_name)
+        last_name = ' '.join(parent_name)
+        name = '{} - {}'.format(first_name, last_name)
+
+    return name
 
 
 def remove_stock(indexed_relative_dir):
