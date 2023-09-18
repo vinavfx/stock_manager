@@ -100,8 +100,7 @@ def to_index(finished_fn, each_folder_fn, each_fn, stop_threads):
 
             data['stocks'][relative_path] = {
                 'path': relative_path,
-                'element': '',
-                'type': '',
+                'tag': '',
                 'folder': folder,
                 'name': name,
                 'resolution': [width, height],
@@ -378,51 +377,33 @@ def separate_texture_and_sequence(folder):
 
 
 def update_stocks_tag():
+    def word_separator(text):
+        min_word_size = 2
+
+        words = re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z]|$)', text)
+        words = [w.lower() for w in words if len(w) > min_word_size]
+        return words
+
+    def detect_folder(stock_file):
+        root_stock = word_separator(stock_file.split('/')[0])
+
+        parent = os.path.dirname(stock_file)
+        grandparent = os.path.dirname(parent)
+
+        parent_name = word_separator(os.path.basename(parent))
+        grandparent_name = word_separator(os.path.basename(grandparent))
+
+        if (not grandparent_name) or (parent_name == grandparent_name) or (grandparent_name == root_stock):
+            name = ' '.join(parent_name)
+        else:
+            first_name = ' '.join(grandparent_name)
+            last_name = ' '.join(parent_name)
+            name = '{} - {}'.format(first_name, last_name)
+
+        return name
+
     for path, stock in get_indexed_stocks().items():
-        stock['element'] = detect_folder(path)
-        stock['type'] = detect_element(path)
-
-
-def word_separator(text):
-    min_word_size = 2
-
-    words = re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z]|$)', text)
-    words = [w.lower() for w in words if len(w) > min_word_size]
-    return words
-
-
-def detect_element(stock_file):
-    folder = os.path.join(stock_folder, os.path.dirname(stock_file))
-
-    folder_words = word_separator(os.path.basename(folder))
-    file_words = word_separator(get_name_no_extension(stock_file))
-
-    words = [w for w in file_words if not any(
-        w in fw for fw in folder_words)]
-
-    if not words:
-        return ' '.join(folder_words)
-
-    return ' '.join(words)
-
-
-def detect_folder(stock_file):
-    root_stock = word_separator(stock_file.split('/')[0])
-
-    parent = os.path.dirname(stock_file)
-    grandparent = os.path.dirname(parent)
-
-    parent_name = word_separator(os.path.basename(parent))
-    grandparent_name = word_separator(os.path.basename(grandparent))
-
-    if (not grandparent_name) or (parent_name == grandparent_name) or (grandparent_name == root_stock):
-        name = ' '.join(parent_name)
-    else:
-        first_name = ' '.join(grandparent_name)
-        last_name = ' '.join(parent_name)
-        name = '{} - {}'.format(first_name, last_name)
-
-    return name
+        stock['tag'] = detect_folder(path)
 
 
 def remove_stock(indexed_relative_dir):

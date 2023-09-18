@@ -144,14 +144,10 @@ class stocks(QWidget):
         self.index_folder_filter.currentTextChanged.connect(
             self.filter_widget_update)
 
-        self.element_filter = QComboBox()
-        self.element_filter.setToolTip('Element Filter')
-        self.element_filter.currentTextChanged.connect(
+        self.tag_filter = QComboBox()
+        self.tag_filter.setToolTip('Folder Filter')
+        self.tag_filter.currentTextChanged.connect(
             self.filter_widget_update)
-
-        self.type_filter = QComboBox()
-        self.type_filter.setToolTip('Type Filter')
-        self.type_filter.currentTextChanged.connect(self.filter_widget_update)
 
         self.search_filter = QLineEdit()
         self.search_filter.textChanged.connect(self.filter_update)
@@ -165,8 +161,7 @@ class stocks(QWidget):
         filter_layout.addWidget(self.search_filter)
         filter_layout.addWidget(self.stock_filter)
         filter_layout.addWidget(self.index_folder_filter)
-        filter_layout.addWidget(self.element_filter)
-        filter_layout.addWidget(self.type_filter)
+        filter_layout.addWidget(self.tag_filter)
 
         display_layout = QHBoxLayout()
         display_layout.setMargin(0)
@@ -243,19 +238,16 @@ class stocks(QWidget):
         self.update_filter = False
 
         current_folder = self.index_folder_filter.currentText()
-        current_element = self.element_filter.currentText()
-        current_type = self.type_filter.currentText()
+        current_tag = self.tag_filter.currentText()
         current_stock = self.stock_filter.currentText()
 
         self.index_folder_filter.clear()
-        self.element_filter.clear()
-        self.type_filter.clear()
+        self.tag_filter.clear()
 
         folder_items = []
-        element_items = []
-        type_items = []
+        tag_items = []
 
-        element_stocks = []
+        tag_stocks = []
 
         for _, stock in indexing.get_indexed_stocks().items():
             folder_name = os.path.basename(stock['folder'])
@@ -273,40 +265,31 @@ class stocks(QWidget):
             if current_folder and not folder_name == current_folder and not current_folder == 'All':
                 continue
 
-            element = ' '.join(w.capitalize() for w in stock['element'].split())
-            if not element in element_items:
-                element_items.append(element)
+            tag = ' '.join(w.capitalize() for w in stock['tag'].split())
+            if not tag in tag_items:
+                tag_items.append(tag)
 
-            element_stocks.append(stock)
+            tag_stocks.append(stock)
 
-        if not current_element in element_items:
-            current_element = 'All'
+        if not current_tag in tag_items:
+            current_tag = 'All'
 
-        for stock in element_stocks:
-            if current_element:
-                if not current_element.lower() == stock['element'] and not current_element == 'All':
+        for stock in tag_stocks:
+            if current_tag:
+                if not current_tag.lower() == stock['tag'] and not current_tag == 'All':
                     continue
 
-            _type = ' '.join(w.capitalize() for w in stock['type'].split())
-
-            if not _type in type_items:
-                type_items.append(_type)
-
         folder_items = sorted(folder_items)
-        element_items = sorted(element_items)
-        type_items = sorted(type_items)
+        tag_items = sorted(tag_items)
 
         folder_items.insert(0, 'All')
-        element_items.insert(0, 'All')
-        type_items.insert(0, 'All')
+        tag_items.insert(0, 'All')
 
         self.index_folder_filter.addItems(folder_items)
-        self.element_filter.addItems(element_items)
-        self.type_filter.addItems(type_items)
+        self.tag_filter.addItems(tag_items)
 
         self.index_folder_filter.setCurrentText(current_folder)
-        self.element_filter.setCurrentText(current_element)
-        self.type_filter.setCurrentText(current_type)
+        self.tag_filter.setCurrentText(current_tag)
 
         self.update_filter = True
         self.filter_update()
@@ -317,8 +300,7 @@ class stocks(QWidget):
 
         keyword = self.search_filter.text().lower()
         index_folder = self.index_folder_filter.currentText()
-        element_stock = self.element_filter.currentText().lower()
-        type_stock = self.type_filter.currentText().lower()
+        tag_stock = self.tag_filter.currentText().lower()
         stock_filter = self.stock_filter.currentText().lower()
 
         total_visibles = 0
@@ -326,14 +308,12 @@ class stocks(QWidget):
         for _, stock in indexing.get_indexed_stocks().items():
             hide = True
 
-            if stock['element'] == element_stock or element_stock == 'all':
-                if stock['type'] == type_stock or type_stock == 'all':
-                    if index_folder in stock['folder'] or index_folder == 'All':
-                        hide = False
+            if stock['tag'] == tag_stock or tag_stock == 'all':
+                if index_folder in stock['folder'] or index_folder == 'All':
+                    hide = False
 
             if not hide:
-                if (not keyword in stock['element'] and
-                    not keyword in stock['type'] and
+                if (not keyword in stock['tag'] and
                         not keyword in stock['name'].lower()):
 
                     hide = True
@@ -385,8 +365,7 @@ class stocks(QWidget):
         indexed = stock['indexed']
         path = stock['path']
         name = stock['name']
-        element = stock['element']
-        _type = stock['type']
+        tag = stock['tag']
         frames = stock['frames']
         width, height = stock['resolution']
         item = stock['item']
@@ -405,21 +384,18 @@ class stocks(QWidget):
             'frames': frames,
             'first_frame': stock['first_frame'],
             'last_frame': stock['last_frame'],
-            'element': element,
-            'type': _type,
+            'tag': tag,
             'resolution': [width, height]
         }
         item.setData(4, json.dumps(item_data))
 
         tooltip = (
             'Element: {}\n'
-            'Type: {}\n'
             'Frames: {}\n'
             'Resolution: {}'
 
         ).format(
-            element.capitalize(),
-            _type.capitalize(),
+            tag.capitalize(),
             frames,
             '{} x {}'.format(width, height)
         )
@@ -427,13 +403,11 @@ class stocks(QWidget):
 
         label = QLabel()
 
-        data_element = '' if element == 'not labeled' else '{} - '.format(
-            element.capitalize())
-        data_type = '' if _type == 'not labeled' else '{} - '.format(
-            _type.capitalize())
+        data_tag = '' if tag == 'not labeled' else '{} - '.format(
+            tag.capitalize())
 
-        data_text = '<font color="#64C8FA"><b>{}{}</b><i>{}x{}</i></font>'.format(
-            data_element, data_type, width, height)
+        data_text = '<font color="#64C8FA"><b>{}</b><i>{}x{}</i></font>'.format(
+            data_tag, width, height)
 
         left_text = '{} - {}'.format(name, data_text)
         right_text = '<font color="#ffbb00"><b>{}</b></font> frames'.format(
