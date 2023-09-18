@@ -25,11 +25,10 @@ class dirs_stock(QWidget):
 
         self.tree = QTreeWidget()
         self.tree.setColumnCount(3)
-        self.tree.setColumnWidth(0, 150)
+        self.tree.setColumnWidth(0, 350)
         self.tree.setColumnWidth(1, 70)
-        self.tree.setColumnWidth(2, 150)
 
-        self.tree.setHeaderLabels(['Name', 'Amount', 'Path', 'Status'])
+        self.tree.setHeaderLabels(['Name', 'Amount', 'Status'])
         self.tree.setAlternatingRowColors(True)
         self.tree.setAcceptDrops(True)
         self.tree.setSelectionMode(QAbstractItemView.MultiSelection)
@@ -108,7 +107,7 @@ class dirs_stock(QWidget):
         indexed_folder = indexing.get_indexed_folder()
         stock_folder_list = os.listdir(stock_folder)
 
-        for folder, data in indexed_folder.items():
+        for folder, data in sorted(indexed_folder.items()):
             if folder in stock_folder_list:
                 self.add_path(folder, data['indexed'], data['amount'])
             else:
@@ -209,11 +208,11 @@ class dirs_stock(QWidget):
         if not amount == -1:
             item.setText(1, str(amount))
 
-        label = self.tree.itemWidget(item, 3)
+        label = self.tree.itemWidget(item, 2)
 
         if not label:
             label = QLabel()
-            self.tree.setItemWidget(item, 3, label)
+            self.tree.setItemWidget(item, 2, label)
 
         if status == -1:
             label.setStyleSheet('QLabel {color: rgb(255, 255, 0);}')
@@ -237,7 +236,6 @@ class dirs_stock(QWidget):
 
         item.setText(0, basename)
         item.setText(1, str(amount))
-        item.setText(2, basename)
 
         for i in [0, 1, 2]:
             item.setToolTip(
@@ -252,7 +250,7 @@ class dirs_stock(QWidget):
     def get_item(self, path):
         for i in range(self.tree.topLevelItemCount()):
             item = self.tree.topLevelItem(i)
-            if path == item.text(2):
+            if path == item.text(0):
                 return item
 
         return None

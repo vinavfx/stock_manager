@@ -33,7 +33,7 @@ def to_index(finished_fn, each_folder_fn, each_fn, stop_threads):
     total_stocks = 0
 
     folders = []
-    for relative_folder, folder_data in get_indexed_folder().items():
+    for relative_folder, folder_data in sorted(get_indexed_folder().items()):
         if folder_data['indexed']:
             continue
 
