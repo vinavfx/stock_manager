@@ -75,13 +75,9 @@ class stock_view(QListWidget):
         item_data = json.loads(item.data(4))
 
         filename = os.path.join(get_stock_folder(), item_data['path'])
-        indexed = item_data['indexed']
 
-        if os.path.isdir(os.path.dirname(filename)):
-            filename = '{} {}-{}'.format(filename,
-                                         item_data['first_frame'], item_data['last_frame'])
-        else:
-            filename = os.path.join(indexed, nuke.getFileNameList(indexed)[0])
+        filename = '{} {}-{}'.format(filename,
+                                     item_data['first_frame'], item_data['last_frame'])
 
         return filename
 
@@ -405,11 +401,8 @@ class stocks(QWidget):
 
         label = QLabel()
 
-        data_tag = '' if tag == 'not labeled' else '{} - '.format(
-            tag.capitalize())
-
-        data_text = '<font color="#64C8FA"><b>{}</b><i>{}x{}</i></font>'.format(
-            data_tag, width, height)
+        data_text = '<font color="#64C8FA"><i>{} x {}</i></font>'.format(
+            width, height)
 
         left_text = '{} - {}'.format(name, data_text)
         right_text = '<font color="#ffbb00"><b>{}</b></font> frames'.format(
