@@ -1,6 +1,8 @@
-# Author: Francisco Jose Contreras Cuevas
-# Office: VFX Artist - Senior Compositor
-# Website: vinavfx.com
+# -----------------------------------------------------------
+# AUTHOR --------> Francisco Jose Contreras Cuevas
+# OFFICE --------> Senior VFX Compositor, Software Developer
+# WEBSITE -------> https://vinavfx.com
+# -----------------------------------------------------------
 import os
 
 from PySide2.QtCore import (Qt, QTimeLine)

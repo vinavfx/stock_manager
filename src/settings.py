@@ -1,6 +1,8 @@
-# Author: Francisco Jose Contreras Cuevas
-# Office: VFX Artist - Senior Compositor
-# Website: vinavfx.com
+# -----------------------------------------------------------
+# AUTHOR --------> Francisco Jose Contreras Cuevas
+# OFFICE --------> Senior VFX Compositor, Software Developer
+# WEBSITE -------> https://vinavfx.com
+# -----------------------------------------------------------
 import os
 from ..python_util.util import jwrite, jread
 from ..nuke_util.nuke_util import get_nuke_path
