@@ -36,16 +36,20 @@ import stock_manager
 stock_manager.setup()
 ```
 
-4 - Dependencies ( <b>FFMPEG</b> )
+4 - Dependencies ( <b>FFmpeg, ImageMagick</b> )
 - Linux
 ```sh
-# Any redhat distribution clone, for others look for ffmpeg installation method
-sudo dnf -y install ffmpeg
+# Any redhat distro clone, for others look for installation method
+sudo dnf -y install ffmpeg, convert
 ```
 - Windows
 
 Download [ffmpeg](https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip)
 manually and copy loose <b>ffmpeg.exe</b> and <b>ffprobe.exe</b> to the 'stock_manager' folder
+"C:\Users\username\\.nuke\stock_manager"
+
+Download [ImageMagick](https://imagemagick.org/archive/binaries/ImageMagick-7.1.1-30-portable-Q8-x64.zip)
+manually copy <b>identify.exe</b> to the 'stock_manager' folder 
 "C:\Users\username\\.nuke\stock_manager"
 
 # Tips

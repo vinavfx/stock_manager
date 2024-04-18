@@ -8,7 +8,7 @@ import nuke
 import threading
 
 from . import indexing
-from .converter import get_ffmpeg
+from .converter import get_ffmpeg, get_identify
 from .settings import set_setting, get_stock_folder
 
 from PySide2.QtCore import Qt
@@ -139,7 +139,7 @@ class dirs_stock(QWidget):
                 'You need to install <b>ffmpeg</b> and <b>ffprobe</b> to index !')
             return
 
-        image_magick = '/usr/bin/identify'
+        image_magick = get_identify()
         if not os.path.isfile(image_magick):
             nuke.message('Image Magick: not found "{}"'.format(image_magick))
             return

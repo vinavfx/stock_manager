@@ -45,6 +45,18 @@ def get_ffmpeg():
     return ffmpeg, ffprobe
 
 
+def get_identify():
+    if platform.system() == "Linux":
+        image_magick = '/usr/bin/identify'
+    else:
+        image_magick = '{}/stock_manager/identify.exe'.format(get_nuke_path())
+
+    if not os.path.isfile(image_magick):
+        image_magick = ''
+
+    return image_magick
+
+
 def convert(src_hash, dst, first_frame, last_frame, is_sequence, is_texture):
     ffmpeg, _ = get_ffmpeg()
     src = src_hash
@@ -171,7 +183,7 @@ def get_format(video, start_frame):
         pass
 
     if not width or not height:
-        image_magick = '/usr/bin/identify'
+        image_magick = get_identify()
         one_frame = get_sequence(video)[0]
         cmd = '{} -format "%wx%h" "{}"'.format(image_magick, one_frame)
         out, _ = sh(cmd)
