@@ -143,7 +143,7 @@ class stocks(QWidget):
             self.filter_widget_update)
 
         self.tag_filter = QComboBox()
-        self.tag_filter.setToolTip('Folder Filter')
+        self.tag_filter.setToolTip('Class Filter')
         self.tag_filter.currentTextChanged.connect(
             self.filter_widget_update)
 
