@@ -144,6 +144,11 @@ class dirs_stock(QWidget):
             nuke.message('Image Magick: not found "{}"'.format(image_magick))
             return
 
+        stock_folder = get_stock_folder()
+        if not os.path.isdir(stock_folder):
+            nuke.message('Folder "{}" does not exist !'.format(stock_folder))
+            return
+
         return True
 
     def refresh_indexs(self):
