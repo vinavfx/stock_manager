@@ -4,7 +4,7 @@
 # WEBSITE -------> https://vinavfx.com
 # -----------------------------------------------------------
 import os
-import nuke
+import nuke  # type: ignore
 import threading
 
 from . import indexing
@@ -155,6 +155,9 @@ class dirs_stock(QWidget):
         if not self.check():
             return
 
+        if not self.tree.topLevelItemCount():
+            self.set_folder(get_stock_folder())
+
         self.refresh_index_btn.setText('Stop')
         self.refresh_index_btn.clicked.disconnect()
 
@@ -261,4 +264,3 @@ class dirs_stock(QWidget):
                 return item
 
         return None
-

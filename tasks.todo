@@ -5,4 +5,4 @@
 ✔ En el menú de los items agregar open 'location in folder' @done(2023-11-06 01:36) @project
 ✔ La indexación debe quedar dentro de una carpeta 'indexed' en la misma carpeta donde están los stocks. @done(2023-11-06 01:36) @project
 ✘ La indexación ffmpeg solo se ejecuta en un solo hilo por es un hilo, corregir para que funcione multihilos @cancelled(2023-11-06 01:37) @project
-☐ Si conecto el disco de stock una vez nuke esta abierto, la lista de indexed esta vacía y si presiono re indexar borra todo el indexed previo, (antes de re indexar verificar si el disco esta conectado)
+✔ Si conecto el disco de stock una vez nuke esta abierto, la lista de indexed esta vacía y si presiono re indexar borra todo el indexed previo, (antes de re indexar verificar si el disco esta conectado) @done(2024-04-29 14:52) @project
