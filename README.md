@@ -52,11 +52,6 @@ Download [ImageMagick](https://imagemagick.org/archive/binaries/ImageMagick-7.1.
 manually copy <b>identify.exe</b> to the 'stock_manager' folder 
 "C:\Users\username\\.nuke\stock_manager"
 
-# Tips
-
-- If any action that you index does not have a label it is because it is not 
-in the list, you can add the type labels - element in [indexing.py](./src/indexing.py)
-and re-index and that's it
 
 # Screenshots
 
