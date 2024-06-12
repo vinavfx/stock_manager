@@ -6,7 +6,7 @@
 import os
 import platform
 import subprocess
-import nuke
+import nuke  # type: ignore
 
 from ..nuke_util.media_util import get_name_no_extension, get_extension, is_sequence, get_sequence
 from ..python_util.util import sh
@@ -57,7 +57,7 @@ def get_identify():
     return image_magick
 
 
-def convert(src_hash, dst, first_frame, last_frame, is_sequence, is_texture):
+def convert(src_hash, dst, first_frame, last_frame, is_sequence, is_texture, frame_rate):
     ffmpeg, _ = get_ffmpeg()
     src = src_hash
 
@@ -84,7 +84,7 @@ def convert(src_hash, dst, first_frame, last_frame, is_sequence, is_texture):
     output = '{}/{}_%d.jpg'.format(output_dir, name)
 
     total_frames = last_frame - first_frame
-    frames = 360 if total_frames > 360 else total_frames
+    frames = 300 if total_frames > 300 else total_frames
     scale = 400
 
     if is_texture:
@@ -96,7 +96,7 @@ def convert(src_hash, dst, first_frame, last_frame, is_sequence, is_texture):
             ffmpeg, first_frame, src, scale, frames, output)
 
     else:
-        seconds = float(frames) / 24.0
+        seconds = float(frames) / float(frame_rate)
         cmd = '{} -i "{}" -vf scale={}:-1 -q:v 1 -ss 0 -t {} "{}"'.format(
             ffmpeg, src, scale, seconds, output)
 
@@ -149,13 +149,21 @@ def convert_with_nuke(data):
 def get_frames(video):
     _, ffprobe = get_ffmpeg()
 
-    cmd = [ffprobe, '-show_entries', 'stream=nb_frames', '-i', video]
+    cmd = [ffprobe, '-show_entries',
+           'stream=nb_frames,avg_frame_rate', '-i', video]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
     out, _ = process.communicate()
-    out = out.decode().split('nb_frames=')[1].split()[0]
+    nb_frames = out.decode().split('nb_frames=')[1].split()[0]
+    avg_frame_rate = out.decode().split('avg_frame_rate=')[1].split()[0]
 
-    return int(out)
+    try:
+        fr1, fr2 = avg_frame_rate.split('/')
+        frame_rate = float(fr1) / float(fr2)
+    except:
+        frame_rate = 24.0
+
+    return int(nb_frames), frame_rate
 
 
 def get_format(video, start_frame):

@@ -82,8 +82,9 @@ def to_index(finished_fn, each_folder_fn, each_fn, stop_threads):
             path = os.path.join(stock_folder, relative_path)
             f = os.path.basename(relative_path)
 
+            frame_rate = 24.0
             if not is_sequence and not frames == 1:
-                frames = converter.get_frames(path)
+                frames, frame_rate = converter.get_frames(path)
                 first_frame = 1
                 last_frame = frames
 
@@ -91,7 +92,7 @@ def to_index(finished_fn, each_folder_fn, each_fn, stop_threads):
             percent = int(general_indexed_stocks * 100 / total_stocks)
 
             name, indexed_dir = converter.convert(
-                path, index_folder, first_frame, last_frame, is_sequence, frames == 1)
+                path, index_folder, first_frame, last_frame, is_sequence, frames == 1, frame_rate)
 
             create_thumbnail(indexed_dir)
 
