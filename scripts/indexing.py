@@ -31,15 +31,17 @@ def get_frames(video):
     process = subprocess.Popen(
         cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    out, _ = process.communicate()
-    nb_frames = out.decode().split('nb_frames=')[1].split()[0]
-    avg_frame_rate = out.decode().split('avg_frame_rate=')[1].split()[0]
-
     try:
+        out, _ = process.communicate()
+        nb_frames = out.decode().split('nb_frames=')[1].split()[0]
+        avg_frame_rate = out.decode().split('avg_frame_rate=')[1].split()[0]
+
         fr1, fr2 = avg_frame_rate.split('/')
         frame_rate = float(fr1) / float(fr2)
         frames = int(nb_frames)
+
     except:
+
         frame_rate = 24.0
         frames = 1
 
@@ -85,7 +87,7 @@ def render_stock(stock_path):
         subprocess.run(cmd, check=True, shell=True,
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError as _:
         print('\nError Here:')
         print(cmd)
 
