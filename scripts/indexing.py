@@ -4,16 +4,15 @@
 # WEBSITE -------> https://vinavfx.com
 # -----------------------------------------------------------
 import os
+import sys
 import re
 import subprocess
 from concurrent.futures import ProcessPoolExecutor
 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from env import INDEXING_DIR, STOCKS_DIRS
 
-STOCKS_DIRS = [
-    '/home/pancho/Desktop/stocks'
-]
 
-INDEXING_DIR = '/home/pancho/Desktop/indexing'
 WORKERS = 8
 
 
@@ -22,6 +21,7 @@ if not os.path.isdir(INDEXING_DIR):
 
 
 def render_stock(stock_path):
+    return
 
     output = os.path.join(INDEXING_DIR, os.path.basename(stock_path))
 
