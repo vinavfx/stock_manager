@@ -47,6 +47,27 @@ def get_frames(video):
 
     return frames, frame_rate
 
+def create_thumbnail(indexed_stock):
+    thumbnail = '{}/{}.jpg'.format(thumbnails_dir,
+                                   os.path.basename(indexed_stock))
+
+    if os.path.isfile(thumbnail):
+        return
+
+    ref_size = 0
+    src = ''
+    for f in os.listdir(indexed_stock):
+        pic = os.path.join(indexed_stock, f)
+
+        size = os.path.getsize(pic)
+        if size >= ref_size:
+            ref_size = size
+            src = pic
+
+    cmd = 'ffmpeg -i "{}" -vf scale=120:-1 -q:v 1 "{}"'.format(src, thumbnail)
+    subprocess.run(cmd, shell=True, stdout=subprocess.PIPE,
+                   stderr=subprocess.PIPE)
+
 
 def render_stock(stock_path):
     basename = os.path.basename(stock_path).rsplit('_', 1)[0].rsplit('.', 1)[0]
@@ -90,6 +111,9 @@ def render_stock(stock_path):
     except subprocess.CalledProcessError as _:
         print('\nError Here:')
         print(cmd)
+
+    create_thumbnail(output_dir)
+
 
 
 def extract_stocks():
