@@ -5,7 +5,7 @@
 # -----------------------------------------------------------
 import os
 import re
-from collections import defaultdict
+import subprocess
 from concurrent.futures import ProcessPoolExecutor
 
 
@@ -17,8 +17,22 @@ INDEXING_DIR = '/home/pancho/Desktop/indexing'
 WORKERS = 4
 
 
+if not os.path.isdir(INDEXING_DIR):
+    os.mkdir(INDEXING_DIR)
+
+
 def render_stock(stock_path):
-    return
+
+    output = os.path.join(INDEXING_DIR, os.path.basename(stock_path))
+
+    cmd = 'ffmpeg -i "{}" "{}"'.format(stock_path, output)
+
+    try:
+        subprocess.run(cmd, check=True, shell=True,
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    except subprocess.CalledProcessError as e:
+        print(e)
 
 
 def extract_stocks():
