@@ -14,7 +14,7 @@ STOCKS_DIRS = [
 ]
 
 INDEXING_DIR = '/home/pancho/Desktop/indexing'
-WORKERS = 4
+WORKERS = 8
 
 
 if not os.path.isdir(INDEXING_DIR):
@@ -32,7 +32,8 @@ def render_stock(stock_path):
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     except subprocess.CalledProcessError as e:
-        print(e)
+        print(e.stderr.decode())
+        print('\n' + cmd)
 
 
 def extract_stocks():
