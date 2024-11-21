@@ -25,17 +25,28 @@ if not os.path.isdir(thumbnails_dir):
     os.makedirs(thumbnails_dir)
 
 
+def get_frames(video):
+    cmd = ['ffprobe', '-show_entries',
+           'stream=nb_frames,avg_frame_rate', '-i', video]
+    process = subprocess.Popen(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    out, _ = process.communicate()
+    nb_frames = out.decode().split('nb_frames=')[1].split()[0]
+    avg_frame_rate = out.decode().split('avg_frame_rate=')[1].split()[0]
+
+    try:
+        fr1, fr2 = avg_frame_rate.split('/')
+        frame_rate = float(fr1) / float(fr2)
+        frames = int(nb_frames)
+    except:
+        frame_rate = 24.0
+        frames = 1
+
+    return frames, frame_rate
+
+
 def render_stock(stock_path):
-    first_frame = 1
-    last_frame = 10
-    frame_rate = 24
-
-    total_frames = last_frame - first_frame
-    frames = 300 if total_frames > 300 else total_frames
-    scale = 400
-
-    seconds = float(frames) / float(frame_rate)
-
     basename = os.path.basename(stock_path).rsplit('_', 1)[0].rsplit('.', 1)[0]
     output_dir = '{}/{}_{}'.format(indexed_dir,
                                    os.path.basename(os.path.dirname(stock_path)), basename)
@@ -43,11 +54,22 @@ def render_stock(stock_path):
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
 
+    if os.listdir(output_dir):
+        return
+
+    frames, frame_rate = get_frames(stock_path)
+    first_frame = 1
+
+    frames = 300 if frames > 300 else frames
+    scale = 400
+
     output = '{}/{}_%d.jpg'.format(output_dir, basename)
 
-    ext = stock_path.split('.')[-1]
+    ext = stock_path.split('.')[-1].lower()
 
     if ext in ['mp4', 'mov']:
+        seconds = float(frames) / float(frame_rate)
+
         cmd = 'ffmpeg -i "{}" -vf scale={}:-1 -q:v 1 -ss 0 -t {} "{}"'.format(
             stock_path, scale, seconds, output)
 
@@ -64,8 +86,8 @@ def render_stock(stock_path):
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     except subprocess.CalledProcessError as e:
-        print(e.stderr.decode())
-        print('\n' + cmd)
+        print('\nError Here:')
+        print(cmd)
 
 
 def extract_stocks():
@@ -75,7 +97,7 @@ def extract_stocks():
     for folder in STOCKS_DIRS:
         for root, _, files in os.walk(folder):
             for f in files:
-                ext = f.split('.')[-1]
+                ext = f.split('.')[-1].lower()
 
                 if ext in ['mov', 'mp4']:
                     stock_path = os.path.join(root, f)
