@@ -14,18 +14,50 @@ from env import INDEXING_DIR, STOCKS_DIRS
 
 
 WORKERS = 8
+indexed_dir = os.path.join(INDEXING_DIR, 'indexed')
+thumbnails_dir = os.path.join(INDEXING_DIR, 'thumbnails')
 
 
-if not os.path.isdir(INDEXING_DIR):
-    os.mkdir(INDEXING_DIR)
+if not os.path.isdir(indexed_dir):
+    os.makedirs(indexed_dir)
+
+if not os.path.isdir(thumbnails_dir):
+    os.makedirs(thumbnails_dir)
 
 
 def render_stock(stock_path):
-    return
+    first_frame = 1
+    last_frame = 10
+    frame_rate = 24
 
-    output = os.path.join(INDEXING_DIR, os.path.basename(stock_path))
+    total_frames = last_frame - first_frame
+    frames = 300 if total_frames > 300 else total_frames
+    scale = 400
 
-    cmd = 'ffmpeg -i "{}" "{}"'.format(stock_path, output)
+    seconds = float(frames) / float(frame_rate)
+
+    basename = os.path.basename(stock_path).rsplit('_', 1)[0].rsplit('.', 1)[0]
+    output_dir = '{}/{}_{}'.format(indexed_dir,
+                                   os.path.basename(os.path.dirname(stock_path)), basename)
+
+    if not os.path.isdir(output_dir):
+        os.mkdir(output_dir)
+
+    output = '{}/{}_%d.jpg'.format(output_dir, basename)
+
+    ext = stock_path.split('.')[-1]
+
+    if ext in ['mp4', 'mov']:
+        cmd = 'ffmpeg -i "{}" -vf scale={}:-1 -q:v 1 -ss 0 -t {} "{}"'.format(
+            stock_path, scale, seconds, output)
+
+    elif any(fmt in stock_path for fmt in ['%02d', '%03d', '%04d', '%05d']):
+        cmd = 'ffmpeg -start_number {} -i "{}" -vf scale={}:-1 -q:v 1 -vframes {} "{}"'.format(
+            first_frame, stock_path, scale, frames, output)
+
+    else:
+        cmd = 'ffmpeg -i "{}" -vf scale={}:-1 -q:v 1 "{}/{}.jpg"'.format(
+            stock_path, scale, output_dir, basename)
 
     try:
         subprocess.run(cmd, check=True, shell=True,
@@ -78,8 +110,8 @@ def separate_images_and_sequences(folder):
     for file in files:
         match = sequence_pattern.match(file)
         if match:
-            base, _, ext = match.groups()
-            sequences[f"{base}{ext}"] = f"{folder}/{base}%04d{ext}"
+            base, frame, ext = match.groups()
+            sequences[f"{base}{ext}"] = f"{folder}/{base}%0{len(frame)}d{ext}"
         else:
             unique_images.append(os.path.join(folder, file))
 
