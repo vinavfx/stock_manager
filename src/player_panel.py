@@ -11,7 +11,7 @@ from PySide2.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QSlider)
 
 from ..nuke_util.nuke_util import get_nuke_path
-from ..env import STOCKS_DIRS
+from ..env import INDEXED_DIR
 
 
 class slider(QSlider):
@@ -80,7 +80,7 @@ class player(QWidget):
         self.play_pause_btn.setEnabled(False)
 
     def set_path(self, name, relative_path, src_frames, resolution):
-        path = os.path.join(STOCKS_DIRS[0], relative_path)
+        path = os.path.join(INDEXED_DIR, relative_path)
         self.image_path = path
         self.name = name
         self.resolution = resolution

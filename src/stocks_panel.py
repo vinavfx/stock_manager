@@ -21,7 +21,7 @@ from ..nuke_util.nuke_util import get_nuke_path
 from .player_panel import slider
 from .stocks import get_stocks
 
-from ..env import THUMBNAILS_DIR, STOCKS_DIRS
+from ..env import THUMBNAILS_DIR
 
 
 class stock_view(QListWidget):
@@ -77,9 +77,7 @@ class stock_view(QListWidget):
     def get_filename(self, item):
         item_data = json.loads(item.data(4))
 
-        filename = os.path.join(STOCKS_DIRS[0], item_data['path'])
-
-        filename = '{} {}-{}'.format(filename,
+        filename = '{} {}-{}'.format(item_data['path'],
                                      item_data['first_frame'], item_data['last_frame'])
 
         return filename

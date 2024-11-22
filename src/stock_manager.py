@@ -34,26 +34,6 @@ class status_bar(QWidget):
         layout.addStretch()
         layout.addWidget(self.visibles_label)
 
-
-    def set_indexing_stock(self, stock_name, percent=0):
-        if stock_name == 'finished':
-            self.indexing_stock.setText('')
-            return
-
-        if stock_name == 'analyzing':
-            text = '<font color="#fcba03">Analyzing directories...</font>'
-        else:
-            text = '<font color="#fcba03">Indexing:</font> {}... <font color="#64C8FA">{}%</font>'.format(
-                stock_name, percent)
-
-        text = '( {} )'.format(text)
-        self.indexing_stock.setText(text)
-
-    def set_total_stocks(self, total):
-        self.total_label.setText(
-            'Total: <font color="#64C8FA">{}</font> stocks'.format(total))
-
-
     def set_current_stock(self, stock):
         width, height = stock['resolution']
 
