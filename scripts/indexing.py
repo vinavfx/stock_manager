@@ -7,6 +7,7 @@ import os
 import sys
 import re
 import subprocess
+from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import Manager
 
@@ -18,6 +19,7 @@ from python_util.util import jwrite, sh
 
 
 WORKERS = 8
+min_sequence_length = 24
 
 
 if not os.path.isdir(INDEXED_DIR):
@@ -235,17 +237,30 @@ def separate_images_and_sequences(folder):
     sequence_pattern = re.compile(r"(.*?)(\d+)(\.\w+)$")
 
     unique_images = []
-    sequences = {}
+    potential_sequences = defaultdict(list)
 
     for file in files:
         match = sequence_pattern.match(file)
         if match:
             base, frame, ext = match.groups()
-            sequences[f"{base}{ext}"] = f"{folder}/{base}%0{len(frame)}d{ext}"
+            potential_sequences[f"{base}{ext}"].append(file)
         else:
             unique_images.append(os.path.join(folder, file))
 
-    return list(sequences.values()), unique_images
+    valid_sequences = []
+    for _, frames in potential_sequences.items():
+        if len(frames) > min_sequence_length:
+            match = sequence_pattern.match(frames[0])
+            if match:
+                base, frame, ext = match.groups()
+                frame_length = len(frame)
+                sequence_path = f"{folder}/{base}%0{frame_length}d{ext}"
+                valid_sequences.append(sequence_path)
+        else:
+            for frame in frames:
+                unique_images.append(os.path.join(folder, frame))
+
+    return valid_sequences, unique_images
 
 
 with Manager() as manager:
