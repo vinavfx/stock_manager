@@ -30,8 +30,10 @@ if not os.path.isdir(THUMBNAILS_DIR):
     os.makedirs(THUMBNAILS_DIR)
 
 
-def render_stock(stock, stocks_metadata):
-    stock_path, folder = stock
+def render_stock(_stock, stocks_metadata):
+    stock, folder = _stock
+    is_sequence = type(stock) == tuple
+    stock_path = stock[0] if is_sequence else stock
 
     basename = os.path.basename(stock_path).rsplit('_', 1)[0].rsplit('.', 1)[0]
     indexed_relative = '{}_{}'.format(
@@ -45,16 +47,19 @@ def render_stock(stock, stocks_metadata):
     if os.listdir(output_dir):
         return
 
-    total_frames, frame_rate = get_frames(stock_path)
-    first_frame = 1
+    if is_sequence:
+        first_frame = int(stock[1][0][1])
+        total_frames = len(stock[1])
+        frame_rate = 24
+    else:
+        first_frame = 1
+        total_frames, frame_rate = get_frames(stock_path)
 
     frames = 300 if total_frames > 300 else total_frames
     scale = 400
 
     output = '{}/{}_%d.jpg'.format(output_dir, basename)
-
     ext = stock_path.split('.')[-1].lower()
-    is_sequence = False
 
     if ext in ['mp4', 'mov']:
         seconds = float(frames) / float(frame_rate)
@@ -62,8 +67,7 @@ def render_stock(stock, stocks_metadata):
         cmd = 'ffmpeg -i "{}" -vf scale={}:-1 -q:v 1 -ss 0 -t {} "{}"'.format(
             stock_path, scale, seconds, output)
 
-    elif any(fmt in stock_path for fmt in ['%02d', '%03d', '%04d', '%05d']):
-        is_sequence = True
+    elif is_sequence:
         cmd = 'ffmpeg -start_number {} -i "{}" -vf scale={}:-1 -q:v 1 -vframes {} "{}"'.format(
             first_frame, stock_path, scale, frames, output)
 
@@ -250,22 +254,18 @@ def separate_images_and_sequences(folder):
         match = sequence_pattern.match(file)
         if match:
             base, frame, ext = match.groups()
-            potential_sequences[f"{base}{ext}"].append(file)
+            key = f"{folder}/{base}%0{len(frame)}d{ext}"
+            potential_sequences[key].append((file, frame))
         else:
             unique_images.append(os.path.join(folder, file))
 
     valid_sequences = []
-    for _, frames in potential_sequences.items():
+    for key, frames in potential_sequences.items():
         if len(frames) > min_sequence_length:
-            match = sequence_pattern.match(frames[0])
-            if match:
-                base, frame, ext = match.groups()
-                frame_length = len(frame)
-                sequence_path = f"{folder}/{base}%0{frame_length}d{ext}"
-                valid_sequences.append(sequence_path)
+            valid_sequences.append((key, frames))
         else:
             for frame in frames:
-                unique_images.append(os.path.join(folder, frame))
+                unique_images.append(os.path.join(folder, frame[0]))
 
     return valid_sequences, unique_images
 
