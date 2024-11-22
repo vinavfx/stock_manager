@@ -55,10 +55,6 @@ manually copy <b>identify.exe</b> to the 'stock_manager' folder
 
 # Screenshots
 
-- <b>INDEXING</b>
-
-<p align="center"> <img src='screenshots/indexing.jpg' width=70%> </p>
-
 - <b>STATUS BAR</b>
 
 <p align="center"> <img src='screenshots/status_bar.jpg' width=70%> </p>

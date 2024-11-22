@@ -13,7 +13,7 @@ from multiprocessing import Manager
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from env import INDEXING_DIR, STOCKS_DIRS, INDEXED_DIR, THUMBNAILS_DIR
+from env import INDEXING_DIR, STOCKS_DIRS, INDEXED_DIR, THUMBNAILS_DIR, ROOT_STOCKS_DIRS
 from python_util.util import jwrite, sh
 
 
@@ -25,101 +25,6 @@ if not os.path.isdir(INDEXED_DIR):
 
 if not os.path.isdir(THUMBNAILS_DIR):
     os.makedirs(THUMBNAILS_DIR)
-
-
-def get_tag(stock_file):
-    def word_separator(text):
-        min_word_size = 2
-
-        words = re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z]|$)', text)
-        words = [w.lower() for w in words if len(w) > min_word_size]
-        return words
-
-    root_stock = word_separator(stock_file.split('/')[0])
-
-    parent = os.path.dirname(stock_file)
-    grandparent = os.path.dirname(parent)
-
-    parent_name = word_separator(os.path.basename(parent))
-    grandparent_name = word_separator(os.path.basename(grandparent))
-
-    if (not grandparent_name) or (parent_name == grandparent_name) or (grandparent_name == root_stock):
-        name = ' '.join(parent_name)
-    else:
-        first_name = ' '.join(grandparent_name)
-        last_name = ' '.join(parent_name)
-        name = '{} - {}'.format(first_name, last_name)
-
-    return name
-
-
-def get_frames(video):
-    cmd = ['ffprobe', '-show_entries',
-           'stream=nb_frames,avg_frame_rate', '-i', video]
-    process = subprocess.Popen(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-    try:
-        out, _ = process.communicate()
-        nb_frames = out.decode().split('nb_frames=')[1].split()[0]
-        avg_frame_rate = out.decode().split('avg_frame_rate=')[1].split()[0]
-
-        fr1, fr2 = avg_frame_rate.split('/')
-        frame_rate = float(fr1) / float(fr2)
-        frames = int(nb_frames)
-
-    except:
-
-        frame_rate = 24.0
-        frames = 1
-
-    return frames, frame_rate
-
-def get_format(video, start_frame, is_sequence):
-
-    start_number = '-start_number {}'.format(
-        start_frame) if is_sequence else ''
-
-    cmd = 'ffprobe {} -show_entries stream=width,height -i "{}"'.format(
-        start_number, video)
-
-    out, _ = sh(cmd)
-
-    width = 0
-    height = 0
-
-    try:
-        width = int(out.split('width=')[1].split()[0])
-        height = int(out.split('height=')[1].split()[0])
-    except:
-        pass
-
-    if not width or not height:
-        print('Error: Format cannot be 0 !', cmd)
-
-    return width, height
-
-
-def create_thumbnail(indexed_stock):
-    thumbnail = '{}/{}.jpg'.format(THUMBNAILS_DIR,
-                                   os.path.basename(indexed_stock))
-
-    if os.path.isfile(thumbnail):
-        return
-
-    ref_size = 0
-    src = ''
-    for f in os.listdir(indexed_stock):
-        pic = os.path.join(indexed_stock, f)
-
-        size = os.path.getsize(pic)
-        if size >= ref_size:
-            ref_size = size
-            src = pic
-
-    cmd = 'ffmpeg -i "{}" -vf scale=120:-1 -q:v 1 "{}"'.format(src, thumbnail)
-    subprocess.run(cmd, shell=True, stdout=subprocess.PIPE,
-                   stderr=subprocess.PIPE)
 
 
 def render_stock(stock, stocks_metadata):
@@ -176,13 +81,111 @@ def render_stock(stock, stocks_metadata):
     stocks_metadata[stock_path] = {
         'frames': total_frames,
         'indexed': indexed_relative,
-        'resolution' : get_format(stock_path, first_frame, is_sequence),
+        'resolution': get_format(stock_path, first_frame, is_sequence),
         'tag': get_tag(stock_path),
-        'folder': os.path.basename( folder ),
+        'folder': os.path.basename(folder),
         'first_frame': first_frame,
         'last_frame': first_frame + total_frames - 1,
         'name': basename
     }
+
+
+def get_tag(stock_file):
+    stock_file = get_relative_stock_path(stock_file)
+
+    def word_separator(text):
+        min_word_size = 2
+
+        words = re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z]|$)', text)
+        words = [w.lower() for w in words if len(w) > min_word_size]
+        return words
+
+    root_stock = word_separator(stock_file.split('/')[0])
+
+    parent = os.path.dirname(stock_file)
+    grandparent = os.path.dirname(parent)
+
+    parent_name = word_separator(os.path.basename(parent))
+    grandparent_name = word_separator(os.path.basename(grandparent))
+
+    if (not grandparent_name) or (parent_name == grandparent_name) or (grandparent_name == root_stock):
+        name = ' '.join(parent_name)
+    else:
+        first_name = ' '.join(grandparent_name)
+        last_name = ' '.join(parent_name)
+        name = '{} - {}'.format(first_name, last_name)
+
+    return name
+
+
+def get_frames(video):
+    cmd = ['ffprobe', '-show_entries',
+           'stream=nb_frames,avg_frame_rate', '-i', video]
+    process = subprocess.Popen(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    try:
+        out, _ = process.communicate()
+        nb_frames = out.decode().split('nb_frames=')[1].split()[0]
+        avg_frame_rate = out.decode().split('avg_frame_rate=')[1].split()[0]
+
+        fr1, fr2 = avg_frame_rate.split('/')
+        frame_rate = float(fr1) / float(fr2)
+        frames = int(nb_frames)
+
+    except:
+
+        frame_rate = 24.0
+        frames = 1
+
+    return frames, frame_rate
+
+
+def get_format(video, start_frame, is_sequence):
+
+    start_number = '-start_number {}'.format(
+        start_frame) if is_sequence else ''
+
+    cmd = 'ffprobe {} -show_entries stream=width,height -i "{}"'.format(
+        start_number, video)
+
+    out, _ = sh(cmd)
+
+    width = 0
+    height = 0
+
+    try:
+        width = int(out.split('width=')[1].split()[0])
+        height = int(out.split('height=')[1].split()[0])
+    except:
+        pass
+
+    if not width or not height:
+        print('Error: Format cannot be 0 !', cmd)
+
+    return width, height
+
+
+def create_thumbnail(indexed_stock):
+    thumbnail = '{}/{}.jpg'.format(THUMBNAILS_DIR,
+                                   os.path.basename(indexed_stock))
+
+    if os.path.isfile(thumbnail):
+        return
+
+    ref_size = 0
+    src = ''
+    for f in os.listdir(indexed_stock):
+        pic = os.path.join(indexed_stock, f)
+
+        size = os.path.getsize(pic)
+        if size >= ref_size:
+            ref_size = size
+            src = pic
+
+    cmd = 'ffmpeg -i "{}" -vf scale=120:-1 -q:v 1 "{}"'.format(src, thumbnail)
+    subprocess.run(cmd, shell=True, stdout=subprocess.PIPE,
+                   stderr=subprocess.PIPE)
 
 
 def extract_stocks():
@@ -217,6 +220,16 @@ def extract_stocks():
     return stocks
 
 
+def get_relative_stock_path(path):
+    relative_path = next((os.path.relpath(path, root)
+                         for root in ROOT_STOCKS_DIRS if path.startswith(root)), None)
+
+    if relative_path:
+        return relative_path
+
+    return path
+
+
 def separate_images_and_sequences(folder):
     files = sorted(os.listdir(folder))
     sequence_pattern = re.compile(r"(.*?)(\d+)(\.\w+)$")
@@ -245,5 +258,3 @@ with Manager() as manager:
         executor.map(render_wrapper, extract_stocks())
 
     jwrite(os.path.join(INDEXING_DIR, 'stocks.json'), dict(stocks_metadata))
-
-
