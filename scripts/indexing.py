@@ -20,6 +20,7 @@ from python_util.util import jwrite, sh
 
 WORKERS = 8
 min_sequence_length = 24
+ignore_patterns = ['preview']
 
 
 if not os.path.isdir(INDEXED_DIR):
@@ -197,6 +198,12 @@ def extract_stocks():
     for folder in STOCKS_DIRS:
         for root, _, files in os.walk(folder):
             for f in files:
+                if any(p in root for p in ignore_patterns):
+                    continue
+
+                if any(p in f for p in ignore_patterns):
+                    continue
+
                 ext = f.split('.')[-1].lower()
 
                 if ext in ['mov', 'mp4']:
