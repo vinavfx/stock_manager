@@ -12,7 +12,9 @@ from multiprocessing import Manager
 
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from env import INDEXING_DIR, STOCKS_DIRS
+from python_util.util import jwrite, sh
 
 
 WORKERS = 8
@@ -49,6 +51,30 @@ def get_frames(video):
 
     return frames, frame_rate
 
+def get_format(video, start_frame, is_sequence):
+
+    start_number = '-start_number {}'.format(
+        start_frame) if is_sequence else ''
+
+    cmd = 'ffprobe {} -show_entries stream=width,height -i "{}"'.format(
+        start_number, video)
+
+    out, _ = sh(cmd)
+
+    width = 0
+    height = 0
+
+    try:
+        width = int(out.split('width=')[1].split()[0])
+        height = int(out.split('height=')[1].split()[0])
+    except:
+        pass
+
+    if not width or not height:
+        print('Error: Format cannot be 0 !', cmd)
+
+    return width, height
+
 
 def create_thumbnail(indexed_stock):
     thumbnail = '{}/{}.jpg'.format(thumbnails_dir,
@@ -80,20 +106,19 @@ def render_stock(stock_path, stocks_metadata):
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
 
-    stocks_metadata[stock_path] = {}
-
     if os.listdir(output_dir):
         return
 
-    frames, frame_rate = get_frames(stock_path)
+    total_frames, frame_rate = get_frames(stock_path)
     first_frame = 1
 
-    frames = 300 if frames > 300 else frames
+    frames = 300 if total_frames > 300 else total_frames
     scale = 400
 
     output = '{}/{}_%d.jpg'.format(output_dir, basename)
 
     ext = stock_path.split('.')[-1].lower()
+    is_sequence = False
 
     if ext in ['mp4', 'mov']:
         seconds = float(frames) / float(frame_rate)
@@ -102,6 +127,7 @@ def render_stock(stock_path, stocks_metadata):
             stock_path, scale, seconds, output)
 
     elif any(fmt in stock_path for fmt in ['%02d', '%03d', '%04d', '%05d']):
+        is_sequence = True
         cmd = 'ffmpeg -start_number {} -i "{}" -vf scale={}:-1 -q:v 1 -vframes {} "{}"'.format(
             first_frame, stock_path, scale, frames, output)
 
@@ -118,6 +144,12 @@ def render_stock(stock_path, stocks_metadata):
         print(cmd)
 
     create_thumbnail(output_dir)
+
+    stocks_metadata[stock_path] = {
+        'frames': total_frames,
+        'indexed': output_dir,
+        'format' : get_format(stock_path, first_frame, is_sequence)
+    }
 
 
 def extract_stocks():
@@ -179,5 +211,6 @@ with Manager() as manager:
     with ProcessPoolExecutor(max_workers=WORKERS) as executor:
         executor.map(render_wrapper, extract_stocks())
 
-    stocks_metadata = dict(stocks_metadata)
+    jwrite(os.path.join(INDEXING_DIR, 'stocks.json'), dict(stocks_metadata))
+
 
