@@ -100,8 +100,10 @@ def create_thumbnail(indexed_stock):
 
 def render_stock(stock_path, stocks_metadata):
     basename = os.path.basename(stock_path).rsplit('_', 1)[0].rsplit('.', 1)[0]
-    output_dir = '{}/{}_{}'.format(indexed_dir,
-                                   os.path.basename(os.path.dirname(stock_path)), basename)
+    indexed_relative = '{}_{}'.format(
+        os.path.basename(os.path.dirname(stock_path)), basename)
+
+    output_dir = '{}/{}'.format(indexed_dir, indexed_relative)
 
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
@@ -147,7 +149,7 @@ def render_stock(stock_path, stocks_metadata):
 
     stocks_metadata[stock_path] = {
         'frames': total_frames,
-        'indexed': output_dir,
+        'indexed': indexed_relative,
         'format' : get_format(stock_path, first_frame, is_sequence)
     }
 
