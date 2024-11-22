@@ -8,6 +8,8 @@ import sys
 import re
 import subprocess
 from concurrent.futures import ProcessPoolExecutor
+from multiprocessing import Manager
+
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from env import INDEXING_DIR, STOCKS_DIRS
@@ -47,6 +49,7 @@ def get_frames(video):
 
     return frames, frame_rate
 
+
 def create_thumbnail(indexed_stock):
     thumbnail = '{}/{}.jpg'.format(thumbnails_dir,
                                    os.path.basename(indexed_stock))
@@ -69,13 +72,15 @@ def create_thumbnail(indexed_stock):
                    stderr=subprocess.PIPE)
 
 
-def render_stock(stock_path):
+def render_stock(stock_path, stocks_metadata):
     basename = os.path.basename(stock_path).rsplit('_', 1)[0].rsplit('.', 1)[0]
     output_dir = '{}/{}_{}'.format(indexed_dir,
                                    os.path.basename(os.path.dirname(stock_path)), basename)
 
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
+
+    stocks_metadata[stock_path] = {}
 
     if os.listdir(output_dir):
         return
@@ -113,7 +118,6 @@ def render_stock(stock_path):
         print(cmd)
 
     create_thumbnail(output_dir)
-
 
 
 def extract_stocks():
@@ -166,5 +170,14 @@ def separate_images_and_sequences(folder):
     return list(sequences.values()), unique_images
 
 
-with ProcessPoolExecutor(max_workers=WORKERS) as executor:
-    executor.map(render_stock, extract_stocks())
+with Manager() as manager:
+    stocks_metadata = manager.dict()
+
+    def render_wrapper(stock_path):
+        render_stock(stock_path, stocks_metadata)
+
+    with ProcessPoolExecutor(max_workers=WORKERS) as executor:
+        executor.map(render_wrapper, extract_stocks())
+
+    stocks_metadata = dict(stocks_metadata)
+
