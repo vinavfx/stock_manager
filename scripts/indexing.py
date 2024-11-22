@@ -18,7 +18,7 @@ from env import INDEXING_DIR, STOCKS_DIRS, INDEXED_DIR, THUMBNAILS_DIR, ROOT_STO
 from python_util.util import jwrite, sh
 
 
-WORKERS = 8
+THREAD = 8
 min_sequence_length = 24
 ignore_patterns = ['preview']
 min_pixels = 960 * 540
@@ -283,7 +283,7 @@ with Manager() as manager:
     def render_wrapper(stock_path):
         render_stock(stock_path, stocks_metadata)
 
-    with ProcessPoolExecutor(max_workers=WORKERS) as executor:
+    with ProcessPoolExecutor(max_workers=THREAD) as executor:
         executor.map(render_wrapper, extract_stocks())
 
     jwrite(os.path.join(INDEXING_DIR, 'stocks.json'), dict(stocks_metadata))
