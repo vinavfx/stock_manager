@@ -122,7 +122,9 @@ def create_thumbnail(indexed_stock):
                    stderr=subprocess.PIPE)
 
 
-def render_stock(stock_path, stocks_metadata):
+def render_stock(stock, stocks_metadata):
+    stock_path, folder = stock
+
     basename = os.path.basename(stock_path).rsplit('_', 1)[0].rsplit('.', 1)[0]
     indexed_relative = '{}_{}'.format(
         os.path.basename(os.path.dirname(stock_path)), basename)
@@ -175,7 +177,8 @@ def render_stock(stock_path, stocks_metadata):
         'frames': total_frames,
         'indexed': indexed_relative,
         'format' : get_format(stock_path, first_frame, is_sequence),
-        'tag': get_tag(stock_path)
+        'tag': get_tag(stock_path),
+        'folder': os.path.basename( folder )
     }
 
 
@@ -191,7 +194,7 @@ def extract_stocks():
                 if ext in ['mov', 'mp4']:
                     stock_path = os.path.join(root, f)
                     if not stock_path in stocks:
-                        stocks.append(stock_path)
+                        stocks.append((stock_path, folder))
                     continue
 
                 if not ext in ['jpg', 'jpeg', 'tiff', 'tif', 'png', 'exr']:
@@ -205,8 +208,8 @@ def extract_stocks():
                 sequences, textures = separate_images_and_sequences(
                     sequence_dir)
 
-                stocks.extend(sequences)
-                stocks.extend(textures)
+                stocks.extend([(seq, folder) for seq in sequences])
+                stocks.extend([(tex, folder) for tex in textures])
 
     return stocks
 

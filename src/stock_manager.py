@@ -110,6 +110,7 @@ class stock_manager_widget(panel_widget):
 
         self.setLayout(layout)
         load_data()
+        _stocks.refresh_stocks()
 
     def showEvent(self, event):
         super(stock_manager_widget, self).showEvent(event)
