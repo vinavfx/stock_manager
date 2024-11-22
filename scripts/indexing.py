@@ -21,6 +21,7 @@ from python_util.util import jwrite, sh
 WORKERS = 8
 min_sequence_length = 24
 ignore_patterns = ['preview']
+min_pixels = 960 * 540
 
 
 if not os.path.isdir(INDEXED_DIR):
@@ -41,11 +42,9 @@ def render_stock(_stock, stocks_metadata):
 
     output_dir = '{}/{}'.format(INDEXED_DIR, indexed_relative)
 
-    if not os.path.isdir(output_dir):
-        os.mkdir(output_dir)
-
-    if os.listdir(output_dir):
-        return
+    if os.path.isdir(output_dir):
+        if os.listdir(output_dir):
+            return
 
     if is_sequence:
         first_frame = int(stock[1][0][1])
@@ -54,6 +53,14 @@ def render_stock(_stock, stocks_metadata):
     else:
         first_frame = 1
         total_frames, frame_rate = get_frames(stock_path)
+
+    resolution = get_format(stock_path, first_frame, is_sequence)
+
+    if (resolution[0] * resolution[1]) < min_pixels:
+        return
+
+    if not os.path.isdir(output_dir):
+        os.mkdir(output_dir)
 
     frames = 300 if total_frames > 300 else total_frames
     scale = 400
@@ -88,7 +95,7 @@ def render_stock(_stock, stocks_metadata):
     stocks_metadata[stock_path] = {
         'frames': total_frames,
         'indexed': indexed_relative,
-        'resolution': get_format(stock_path, first_frame, is_sequence),
+        'resolution': resolution,
         'tag': get_tag(stock_path),
         'folder': os.path.basename(folder),
         'first_frame': first_frame,
