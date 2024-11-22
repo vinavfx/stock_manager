@@ -19,10 +19,9 @@ from PySide2.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushB
 
 from ..nuke_util.nuke_util import get_nuke_path
 from .player_panel import slider
-from .settings import get_stock_folder
 from .stocks import get_stocks
 
-from ..env import THUMBNAILS_DIR
+from ..env import THUMBNAILS_DIR, STOCKS_DIRS
 
 
 class stock_view(QListWidget):
@@ -78,7 +77,7 @@ class stock_view(QListWidget):
     def get_filename(self, item):
         item_data = json.loads(item.data(4))
 
-        filename = os.path.join(get_stock_folder(), item_data['path'])
+        filename = os.path.join(STOCKS_DIRS[0], item_data['path'])
 
         filename = '{} {}-{}'.format(filename,
                                      item_data['first_frame'], item_data['last_frame'])

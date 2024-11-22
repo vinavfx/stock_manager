@@ -5,7 +5,7 @@
 # -----------------------------------------------------------
 import nuke
 
-from PySide2.QtWidgets import (QWidget, QVBoxLayout, QTabWidget, QHBoxLayout, QLabel)
+from PySide2.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel)
 
 from .player_panel import player
 from .stocks_panel import stocks
