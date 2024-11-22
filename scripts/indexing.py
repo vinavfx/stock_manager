@@ -176,9 +176,12 @@ def render_stock(stock, stocks_metadata):
     stocks_metadata[stock_path] = {
         'frames': total_frames,
         'indexed': indexed_relative,
-        'format' : get_format(stock_path, first_frame, is_sequence),
+        'resolution' : get_format(stock_path, first_frame, is_sequence),
         'tag': get_tag(stock_path),
-        'folder': os.path.basename( folder )
+        'folder': os.path.basename( folder ),
+        'first_frame': first_frame,
+        'last_frame': first_frame + total_frames - 1,
+        'name': basename
     }
 
 

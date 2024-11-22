@@ -343,7 +343,7 @@ class stocks(QWidget):
 
         self.list_widget.setVisible(False)
 
-        for _, stock in get_stocks().items():
+        for path, stock in get_stocks().items():
             if stock['hide']:
                 continue
 
@@ -351,6 +351,7 @@ class stocks(QWidget):
             if i > _max:
                 break
 
+            stock['path'] = path
             self.mount_item(stock)
             stock['item'].setHidden(False)
             showed += 1
