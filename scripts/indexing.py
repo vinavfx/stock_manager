@@ -29,6 +29,32 @@ if not os.path.isdir(thumbnails_dir):
     os.makedirs(thumbnails_dir)
 
 
+def get_tag(stock_file):
+    def word_separator(text):
+        min_word_size = 2
+
+        words = re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z]|$)', text)
+        words = [w.lower() for w in words if len(w) > min_word_size]
+        return words
+
+    root_stock = word_separator(stock_file.split('/')[0])
+
+    parent = os.path.dirname(stock_file)
+    grandparent = os.path.dirname(parent)
+
+    parent_name = word_separator(os.path.basename(parent))
+    grandparent_name = word_separator(os.path.basename(grandparent))
+
+    if (not grandparent_name) or (parent_name == grandparent_name) or (grandparent_name == root_stock):
+        name = ' '.join(parent_name)
+    else:
+        first_name = ' '.join(grandparent_name)
+        last_name = ' '.join(parent_name)
+        name = '{} - {}'.format(first_name, last_name)
+
+    return name
+
+
 def get_frames(video):
     cmd = ['ffprobe', '-show_entries',
            'stream=nb_frames,avg_frame_rate', '-i', video]
@@ -150,7 +176,8 @@ def render_stock(stock_path, stocks_metadata):
     stocks_metadata[stock_path] = {
         'frames': total_frames,
         'indexed': indexed_relative,
-        'format' : get_format(stock_path, first_frame, is_sequence)
+        'format' : get_format(stock_path, first_frame, is_sequence),
+        'tag': get_tag(stock_path)
     }
 
 
