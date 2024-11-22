@@ -7,12 +7,11 @@ import nuke
 
 from PySide2.QtWidgets import (QWidget, QVBoxLayout, QTabWidget, QHBoxLayout, QLabel)
 
-from .indexing_panel import dirs_stock
 from .player_panel import player
 from .stocks_panel import stocks
-from . import indexing
 
 from ..nuke_util.panels import panel_widget
+from .stocks import load_data
 
 
 class status_bar(QWidget):
@@ -88,50 +87,29 @@ class stock_manager_widget(panel_widget):
         panel_widget.__init__(self, parent)
         self.mounted = False
 
-    def tab_changed(self):
-        if self.tabs.currentIndex() == 1:
-            return
-
-        if indexing.is_indexing():
-            nuke.message('Now it is indexing !')
-            self.tabs.setCurrentIndex(1)
-
     def setup(self):
         self.mounted = True
 
         layout = QVBoxLayout()
         layout.setMargin(0)
 
-        self.tabs = QTabWidget()
-        self.tabs.currentChanged.connect(self.tab_changed)
-
         viewer_layout = QVBoxLayout()
         viewer_layout.setMargin(0)
         viewer = QWidget()
         viewer.setLayout(viewer_layout)
-        self.tabs.addTab(viewer, 'Viewer')
-
-        manage_layout = QVBoxLayout()
-        manage_layout.setMargin(0)
-        manage = QWidget()
-        manage.setLayout(manage_layout)
-        self.tabs.addTab(manage, 'Indexing')
-
-        self.tabs.setCurrentIndex(0)
 
         _status_bar = status_bar()
         _player = player()
         _stocks = stocks(_player, _status_bar)
-        _dirs_stock = dirs_stock(_stocks, _status_bar)
 
-        manage_layout.addWidget(_dirs_stock)
         viewer_layout.addWidget(_player)
         viewer_layout.addWidget(_stocks)
 
-        layout.addWidget(self.tabs)
+        layout.addWidget(viewer)
         layout.addWidget(_status_bar)
 
         self.setLayout(layout)
+        load_data()
 
     def showEvent(self, event):
         super(stock_manager_widget, self).showEvent(event)

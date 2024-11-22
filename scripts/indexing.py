@@ -13,20 +13,18 @@ from multiprocessing import Manager
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from env import INDEXING_DIR, STOCKS_DIRS
+from env import INDEXING_DIR, STOCKS_DIRS, INDEXED_DIR, THUMBNAILS_DIR
 from python_util.util import jwrite, sh
 
 
 WORKERS = 8
-indexed_dir = os.path.join(INDEXING_DIR, 'indexed')
-thumbnails_dir = os.path.join(INDEXING_DIR, 'thumbnails')
 
 
-if not os.path.isdir(indexed_dir):
-    os.makedirs(indexed_dir)
+if not os.path.isdir(INDEXED_DIR):
+    os.makedirs(INDEXED_DIR)
 
-if not os.path.isdir(thumbnails_dir):
-    os.makedirs(thumbnails_dir)
+if not os.path.isdir(THUMBNAILS_DIR):
+    os.makedirs(THUMBNAILS_DIR)
 
 
 def get_tag(stock_file):
@@ -103,7 +101,7 @@ def get_format(video, start_frame, is_sequence):
 
 
 def create_thumbnail(indexed_stock):
-    thumbnail = '{}/{}.jpg'.format(thumbnails_dir,
+    thumbnail = '{}/{}.jpg'.format(THUMBNAILS_DIR,
                                    os.path.basename(indexed_stock))
 
     if os.path.isfile(thumbnail):
@@ -129,7 +127,7 @@ def render_stock(stock_path, stocks_metadata):
     indexed_relative = '{}_{}'.format(
         os.path.basename(os.path.dirname(stock_path)), basename)
 
-    output_dir = '{}/{}'.format(indexed_dir, indexed_relative)
+    output_dir = '{}/{}'.format(INDEXED_DIR, indexed_relative)
 
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)

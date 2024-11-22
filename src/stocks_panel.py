@@ -9,7 +9,7 @@ from functools import partial
 from time import time
 from sys import version_info
 
-import nuke
+import nuke # type: ignore
 
 from PySide2.QtCore import (Qt, QSortFilterProxyModel, QSize)
 from PySide2.QtGui import (QIcon, QStandardItemModel)
@@ -19,8 +19,10 @@ from PySide2.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushB
 
 from ..nuke_util.nuke_util import get_nuke_path
 from .player_panel import slider
-from . import indexing
 from .settings import get_stock_folder
+from .stocks import get_stocks
+
+from ..env import THUMBNAILS_DIR
 
 
 class stock_view(QListWidget):
@@ -249,7 +251,7 @@ class stocks(QWidget):
 
         tag_stocks = []
 
-        for _, stock in indexing.get_indexed_stocks().items():
+        for _, stock in get_stocks().items():
             folder_name = os.path.basename(stock['folder'])
 
             is_texture = stock['frames'] == 1
@@ -305,7 +307,7 @@ class stocks(QWidget):
 
         total_visibles = 0
 
-        for _, stock in indexing.get_indexed_stocks().items():
+        for _, stock in get_stocks().items():
             hide = True
 
             if stock['tag'] == tag_stock or tag_stock == 'all':
@@ -342,7 +344,7 @@ class stocks(QWidget):
 
         self.list_widget.setVisible(False)
 
-        for _, stock in indexing.get_indexed_stocks().items():
+        for _, stock in get_stocks().items():
             if stock['hide']:
                 continue
 
@@ -372,8 +374,7 @@ class stocks(QWidget):
 
         self.list_widget.addItem(item)
 
-        frame = '{}/{}.jpg'.format(indexing.thumbnails_folder,
-                                   os.path.basename(indexed))
+        frame = '{}/{}.jpg'.format(THUMBNAILS_DIR, os.path.basename(indexed))
         icon = QIcon(frame)
         item.setIcon(icon)
 
@@ -434,7 +435,7 @@ class stocks(QWidget):
         if clear:
             self.list_widget.clear()
 
-        for _, stock in indexing.get_indexed_stocks().items():
+        for _, stock in get_stocks().items():
             if 'item' in stock and not clear:
                 continue
 
