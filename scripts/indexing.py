@@ -74,6 +74,9 @@ def render_stock(_stock):
     if (resolution[0] * resolution[1]) < min_pixels and total_frames > 1:
         return
 
+    if os.path.isdir(output_dir):
+        return
+
     os.mkdir(output_dir)
 
     frames = 300 if total_frames > 300 else total_frames
