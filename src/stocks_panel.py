@@ -122,6 +122,7 @@ class stocks(QWidget):
         self.status_bar = status_bar
         self.player = player
         layout = QVBoxLayout()
+        layout.setMargin(0)
         self.setLayout(layout)
 
         self.viewerModel = QStandardItemModel()
@@ -201,9 +202,7 @@ class stocks(QWidget):
 
         display_layout.addWidget(self.list_display)
         display_layout.addWidget(self.grid_display)
-        display_layout.addSpacing(30)
         display_layout.addWidget(self.size_slider)
-        display_layout.addSpacing(30)
         display_layout.addWidget(self.max_visibility)
         display_layout.addWidget(self.refresh_btn)
 

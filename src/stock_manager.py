@@ -19,7 +19,7 @@ class status_bar(QWidget):
         QWidget.__init__(self, parent)
 
         layout = QHBoxLayout()
-        layout.setContentsMargins(12, 0, 12, 0)
+        layout.setContentsMargins(0, 10, 0, 0)
         self.setLayout(layout)
 
         self.total_label = QLabel()
