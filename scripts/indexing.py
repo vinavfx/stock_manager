@@ -9,8 +9,10 @@ import sys
 import traceback
 import re
 import subprocess
+from tqdm import tqdm
 from collections import defaultdict
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, as_completed
+
 
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -327,9 +329,14 @@ def render_wrapper(stock_path):
     except:
         print(traceback.format_exc())
 
+    return stock_path
 
+
+stocks = extract_stocks()
 with ProcessPoolExecutor(max_workers=THREAD) as executor:
-    executor.map(render_wrapper, extract_stocks())
+    with tqdm(total=len(stocks), desc='Indexing Stocks', unit=' Stock') as progress_bar:
+        for _ in executor.map(render_wrapper, stocks):
+            progress_bar.update(1)
 
 
 stocks_metadata = {}
