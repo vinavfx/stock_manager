@@ -15,7 +15,7 @@ from concurrent.futures import ProcessPoolExecutor
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from env import INDEXING_DIR, STOCKS_DIRS, INDEXED_DIR, THUMBNAILS_DIR, ROOT_STOCKS_DIRS, METADATA_DIR
+from env import *
 from python_util.util import jwrite, sh, jread
 
 
@@ -80,16 +80,16 @@ def render_stock(_stock):
     if ext in videos_allowed:
         seconds = float(frames) / float(frame_rate)
 
-        cmd = 'ffmpeg -i "{}" -vf scale={}:-1 -q:v 1 -ss 0 -t {} "{}"'.format(
-            stock_path, scale, seconds, output)
+        cmd = '{} -i "{}" -vf scale={}:-1 -q:v 1 -ss 0 -t {} "{}"'.format(
+            FFMPEG, stock_path, scale, seconds, output)
 
     elif is_sequence:
-        cmd = 'ffmpeg -start_number {} -i "{}" -vf scale={}:-1 -q:v 1 -vframes {} "{}"'.format(
-            first_frame, stock_path, scale, frames, output)
+        cmd = '{} -start_number {} -i "{}" -vf scale={}:-1 -q:v 1 -vframes {} "{}"'.format(
+            FFMPEG, first_frame, stock_path, scale, frames, output)
 
     else:
-        cmd = 'ffmpeg -i "{}" -vf scale={}:-1 -q:v 1 "{}/{}.jpg"'.format(
-            stock_path, scale, output_dir, basename)
+        cmd = '{} -i "{}" -vf scale={}:-1 -q:v 1 "{}/{}.jpg"'.format(
+            FFMPEG, stock_path, scale, output_dir, basename)
 
     try:
         subprocess.run(cmd, check=True, shell=True,
@@ -145,7 +145,7 @@ def get_tag(stock_file):
 
 
 def get_frames(video):
-    cmd = ['ffprobe', '-show_entries',
+    cmd = [FFPROBE, '-show_entries',
            'stream=nb_frames,avg_frame_rate', '-i', video]
     process = subprocess.Popen(
         cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -172,8 +172,8 @@ def get_format(video, start_frame, is_sequence):
     start_number = '-start_number {}'.format(
         start_frame) if is_sequence else ''
 
-    cmd = 'ffprobe {} -show_entries stream=width,height -i "{}"'.format(
-        start_number, video)
+    cmd = '{} {} -show_entries stream=width,height -i "{}"'.format(
+        FFPROBE, start_number, video)
 
     out, _ = sh(cmd)
 
@@ -209,7 +209,7 @@ def create_thumbnail(indexed_stock):
             ref_size = size
             src = pic
 
-    cmd = 'ffmpeg -i "{}" -vf scale=120:-1 -q:v 1 "{}"'.format(src, thumbnail)
+    cmd = '{} -i "{}" -vf scale=120:-1 -q:v 1 "{}"'.format(FFMPEG, src, thumbnail)
     subprocess.run(cmd, shell=True, stdout=subprocess.PIPE,
                    stderr=subprocess.PIPE)
 

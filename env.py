@@ -6,6 +6,9 @@ ROOT_STOCKS_DIRS = [
     '/home/pancho/Desktop/stocks'
 ]
 
+FFMPEG = '/usr/bin/ffmpeg'
+FFPROBE = '/usr/bin/ffprobe'
+
 STOCKS_DIRS = [os.path.join(root, d) for root in ROOT_STOCKS_DIRS if os.path.exists(
     root) for d in os.listdir(root) if os.path.isdir(os.path.join(root, d))]
 
