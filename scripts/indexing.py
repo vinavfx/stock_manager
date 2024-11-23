@@ -10,13 +10,12 @@ import re
 import subprocess
 from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor
-from multiprocessing import Manager
 
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from env import INDEXING_DIR, STOCKS_DIRS, INDEXED_DIR, THUMBNAILS_DIR, ROOT_STOCKS_DIRS
-from python_util.util import jwrite, sh
+from env import INDEXING_DIR, STOCKS_DIRS, INDEXED_DIR, THUMBNAILS_DIR, ROOT_STOCKS_DIRS, METADATA_DIR
+from python_util.util import jwrite, sh, jread
 
 
 THREAD = 8
@@ -33,8 +32,11 @@ if not os.path.isdir(INDEXED_DIR):
 if not os.path.isdir(THUMBNAILS_DIR):
     os.makedirs(THUMBNAILS_DIR)
 
+if not os.path.isdir(METADATA_DIR):
+    os.makedirs(METADATA_DIR)
 
-def render_stock(_stock, stocks_metadata):
+
+def render_stock(_stock):
     stock, folder = _stock
     is_sequence = type(stock) == tuple
     stock_path = stock[0] if is_sequence else stock
@@ -98,7 +100,7 @@ def render_stock(_stock, stocks_metadata):
 
     create_thumbnail(output_dir)
 
-    stocks_metadata[stock_path] = {
+    metadata = {
         'frames': total_frames,
         'indexed': indexed_relative,
         'resolution': resolution,
@@ -106,8 +108,11 @@ def render_stock(_stock, stocks_metadata):
         'folder': os.path.basename(folder),
         'first_frame': first_frame,
         'last_frame': first_frame + total_frames - 1,
-        'name': basename
+        'name': basename,
+        'path': stock_path
     }
+
+    jwrite('{}/{}.json'.format(METADATA_DIR, basename), metadata)
 
 
 def get_tag(stock_file):
@@ -283,16 +288,22 @@ def separate_images_and_sequences(folder):
     return valid_sequences, unique_images
 
 
-with Manager() as manager:
-    stocks_metadata = manager.dict()
+def render_wrapper(stock_path):
+    try:
+        render_stock(stock_path)
+    except:
+        print(traceback.format_exc())
 
-    def render_wrapper(stock_path):
-        try:
-            render_stock(stock_path, stocks_metadata)
-        except:
-            print(traceback.format_exc())
 
-    with ProcessPoolExecutor(max_workers=THREAD) as executor:
-        executor.map(render_wrapper, extract_stocks())
+with ProcessPoolExecutor(max_workers=THREAD) as executor:
+    executor.map(render_wrapper, extract_stocks())
 
-    jwrite(os.path.join(INDEXING_DIR, 'stocks.json'), dict(stocks_metadata))
+
+stocks_metadata = {}
+for j in os.listdir(METADATA_DIR):
+    data = jread(os.path.join(METADATA_DIR, j))
+    path = data['path']
+    del data['path']
+    stocks_metadata[path] = data
+
+jwrite(os.path.join(INDEXING_DIR, 'stocks.json'), stocks_metadata)

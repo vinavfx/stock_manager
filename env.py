@@ -11,3 +11,4 @@ STOCKS_DIRS = [os.path.join(root, d) for root in ROOT_STOCKS_DIRS if os.path.exi
 
 INDEXED_DIR = os.path.join(INDEXING_DIR, 'indexed')
 THUMBNAILS_DIR = os.path.join(INDEXING_DIR, 'thumbnails')
+METADATA_DIR = os.path.join(INDEXING_DIR, 'metadata')
