@@ -5,7 +5,6 @@ for the shot that requires it.
 
 Showing: <a href=https://vinavfx.com/blog target='_blank'>https://vinavfx.com/blog</a>
 
-
 # Feautres
 - <b>Quick</b> display of any video or texture in stock
 - <b>Automatic labeling</b> using the name of the file or its folder
@@ -42,16 +41,28 @@ stock_manager.setup()
 # Any redhat distro clone, for others look for installation method
 sudo dnf -y install ffmpeg, convert
 ```
-- Windows
 
-Download [ffmpeg](https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip)
-manually and copy loose <b>ffmpeg.exe</b> and <b>ffprobe.exe</b> to the 'stock_manager' folder
-"C:\Users\username\\.nuke\stock_manager"
+# Indexing
+To be able to view your stock in the viewer, you first have to modify 
+the variables in env.py and then index the folders.
 
-Download [ImageMagick](https://imagemagick.org/archive/binaries/ImageMagick-7.1.1-30-portable-Q8-x64.zip)
-manually copy <b>identify.exe</b> to the 'stock_manager' folder 
-"C:\Users\username\\.nuke\stock_manager"
+1 - Modify <b>env.py</b>
+```python
+INDEXING_DIR = '<path_where_it_will_be_indexed>'
 
+ROOT_STOCKS_DIRS = [
+    '<path_your_stocks',
+    '<extra_path_your_stocks',
+    '<extra_path_your_stocks',
+    ...
+]
+```
+
+2 - To index (Terminal only)
+```sh
+cd ~/.nuke/stock_manager/scripts
+python3 indexing.py
+```
 
 # Screenshots
 
@@ -74,4 +85,3 @@ manually copy <b>identify.exe</b> to the 'stock_manager' folder
 - <b>LIST</b> mode
 
 <p align="center"> <img src='screenshots/list.jpg' width=70%> </p>
-
