@@ -43,15 +43,13 @@ def render_stock(_stock, stocks_metadata):
     if ext not in videos_allowed and ext not in images_allowed:
         return
 
-    basename = os.path.basename(stock_path).rsplit('_', 1)[0].rsplit('.', 1)[0]
+    name = basename = os.path.basename(stock_path).rsplit('.', 1)[0]
+    basename = name.rsplit('_', 1)[0] if is_sequence else name
+
     indexed_relative = '{}_{}'.format(
         os.path.basename(os.path.dirname(stock_path)), basename)
 
     output_dir = '{}/{}'.format(INDEXED_DIR, indexed_relative)
-
-    if os.path.isdir(output_dir):
-        if os.listdir(output_dir):
-            return
 
     if is_sequence:
         first_frame = int(stock[1][0][1])
@@ -66,10 +64,10 @@ def render_stock(_stock, stocks_metadata):
     if (resolution[0] * resolution[1]) < min_pixels:
         return
 
-    try:
-        os.mkdir(output_dir)
-    except:
-        pass
+    if os.path.isdir(output_dir):
+        return
+
+    os.mkdir(output_dir)
 
     frames = 300 if total_frames > 300 else total_frames
     scale = 400
