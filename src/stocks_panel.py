@@ -265,7 +265,7 @@ class stocks(QWidget):
                 continue
 
             tag = ' '.join(w.capitalize() for w in stock['tag'].split())
-            if not tag in tag_items:
+            if tag and not tag in tag_items:
                 tag_items.append(tag)
 
             tag_stocks.append(stock)
