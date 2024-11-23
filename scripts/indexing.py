@@ -64,7 +64,7 @@ def render_stock(_stock):
 
     resolution = get_format(stock_path, first_frame, is_sequence)
 
-    if (resolution[0] * resolution[1]) < min_pixels:
+    if (resolution[0] * resolution[1]) < min_pixels and total_frames > 1:
         return
 
     if os.path.isdir(output_dir):
