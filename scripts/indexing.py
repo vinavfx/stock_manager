@@ -4,6 +4,7 @@
 # WEBSITE -------> https://vinavfx.com
 # -----------------------------------------------------------
 import os
+import shutil
 import sys
 import traceback
 import re
@@ -48,10 +49,10 @@ def render_stock(_stock):
     name = basename = os.path.basename(stock_path).rsplit('.', 1)[0]
     basename = name.rsplit('_', 1)[0] if is_sequence else name
 
-    indexed_relative = '{}_{}'.format(
+    new_name = '{}_{}'.format(
         os.path.basename(os.path.dirname(stock_path)), basename)
 
-    output_dir = '{}/{}'.format(INDEXED_DIR, indexed_relative)
+    output_dir = '{}/{}'.format(INDEXED_DIR, new_name)
 
     if is_sequence:
         first_frame = int(stock[1][0][1])
@@ -102,7 +103,7 @@ def render_stock(_stock):
 
     metadata = {
         'frames': total_frames,
-        'indexed': indexed_relative,
+        'indexed': new_name,
         'resolution': resolution,
         'tag': get_tag(stock_path),
         'folder': os.path.basename(folder),
@@ -112,7 +113,7 @@ def render_stock(_stock):
         'path': stock_path
     }
 
-    jwrite('{}/{}.json'.format(METADATA_DIR, basename), metadata)
+    jwrite('{}/{}.json'.format(METADATA_DIR, new_name), metadata)
 
 
 def get_tag(stock_file):
@@ -288,6 +289,38 @@ def separate_images_and_sequences(folder):
     return valid_sequences, unique_images
 
 
+def delete_indexed_stock(name):
+    basename = os.path.basename(name).rsplit('.', 1)[0]
+
+    indexed_path = os.path.join(INDEXED_DIR, basename)
+    thumbnail_path = '{}/{}.jpg'.format(THUMBNAILS_DIR, basename)
+    metadata_path = '{}/{}.json'.format(METADATA_DIR, basename)
+
+    if os.path.isfile(metadata_path):
+        os.remove(metadata_path)
+
+    if os.path.isdir(indexed_path):
+        shutil.rmtree(indexed_path)
+
+    if os.path.isfile(thumbnail_path):
+        os.remove(thumbnail_path)
+
+
+def delete_corrupt_indexed_stock(name):
+    basename = os.path.basename(name).rsplit('.', 1)[0]
+
+    indexed_path = os.path.join(INDEXED_DIR, basename)
+    thumbnail_path = '{}/{}.jpg'.format(THUMBNAILS_DIR, basename)
+    metadata_path = '{}/{}.json'.format(METADATA_DIR, basename)
+
+    if (os.path.isfile(metadata_path)
+        and os.path.isdir(indexed_path)
+            and os.path.isfile(thumbnail_path)):
+        return
+
+    delete_indexed_stock(name)
+
+
 def render_wrapper(stock_path):
     try:
         render_stock(stock_path)
@@ -300,10 +333,25 @@ with ProcessPoolExecutor(max_workers=THREAD) as executor:
 
 
 stocks_metadata = {}
-for j in os.listdir(METADATA_DIR):
-    data = jread(os.path.join(METADATA_DIR, j))
+corrupt_metadata = []
+
+for f in os.listdir(METADATA_DIR):
+    metadata_path = os.path.join(METADATA_DIR, f)
+
+    try:
+        data = jread(metadata_path)
+    except:
+        corrupt_metadata.append(metadata_path)
+        continue
+
     path = data['path']
     del data['path']
     stocks_metadata[path] = data
 
 jwrite(os.path.join(INDEXING_DIR, 'stocks.json'), stocks_metadata)
+
+
+[delete_indexed_stock(f) for f in corrupt_metadata]
+[delete_corrupt_indexed_stock(f) for f in os.listdir(INDEXED_DIR)]
+[delete_corrupt_indexed_stock(f) for f in os.listdir(THUMBNAILS_DIR)]
+[delete_corrupt_indexed_stock(f) for f in os.listdir(METADATA_DIR)]
