@@ -5,6 +5,7 @@
 # -----------------------------------------------------------
 import os
 import sys
+import traceback
 import re
 import subprocess
 from collections import defaultdict
@@ -286,7 +287,10 @@ with Manager() as manager:
     stocks_metadata = manager.dict()
 
     def render_wrapper(stock_path):
-        render_stock(stock_path, stocks_metadata)
+        try:
+            render_stock(stock_path, stocks_metadata)
+        except:
+            print(traceback.format_exc())
 
     with ProcessPoolExecutor(max_workers=THREAD) as executor:
         executor.map(render_wrapper, extract_stocks())
