@@ -55,6 +55,8 @@ def render_stock(_stock):
         os.path.basename(os.path.dirname(stock_path)), basename)
 
     output_dir = '{}/{}'.format(INDEXED_DIR, new_name)
+    if os.path.isdir(output_dir):
+        return
 
     if is_sequence:
         first_frame = int(stock[1][0][1])
@@ -67,9 +69,6 @@ def render_stock(_stock):
     resolution = get_format(stock_path, first_frame, is_sequence)
 
     if (resolution[0] * resolution[1]) < min_pixels and total_frames > 1:
-        return
-
-    if os.path.isdir(output_dir):
         return
 
     os.mkdir(output_dir)
