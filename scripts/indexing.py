@@ -23,6 +23,8 @@ min_sequence_length = 24
 ignore_patterns = ['preview']
 min_pixels = 960 * 540
 
+videos_allowed = ['mov', 'mp4']
+images_allowed =  ['jpg', 'jpeg', 'tiff', 'tif', 'png', 'exr']
 
 if not os.path.isdir(INDEXED_DIR):
     os.makedirs(INDEXED_DIR)
@@ -35,6 +37,10 @@ def render_stock(_stock, stocks_metadata):
     stock, folder = _stock
     is_sequence = type(stock) == tuple
     stock_path = stock[0] if is_sequence else stock
+    ext = stock_path.split('.')[-1].lower()
+
+    if ext not in videos_allowed and ext not in images_allowed:
+        return
 
     basename = os.path.basename(stock_path).rsplit('_', 1)[0].rsplit('.', 1)[0]
     indexed_relative = '{}_{}'.format(
@@ -66,9 +72,8 @@ def render_stock(_stock, stocks_metadata):
     scale = 400
 
     output = '{}/{}_%d.jpg'.format(output_dir, basename)
-    ext = stock_path.split('.')[-1].lower()
 
-    if ext in ['mp4', 'mov']:
+    if ext in videos_allowed:
         seconds = float(frames) / float(frame_rate)
 
         cmd = 'ffmpeg -i "{}" -vf scale={}:-1 -q:v 1 -ss 0 -t {} "{}"'.format(
@@ -217,13 +222,13 @@ def extract_stocks():
 
                 ext = f.split('.')[-1].lower()
 
-                if ext in ['mov', 'mp4']:
+                if ext in videos_allowed:
                     stock_path = os.path.join(root, f)
                     if not stock_path in stocks:
                         stocks.append((stock_path, folder))
                     continue
 
-                if not ext in ['jpg', 'jpeg', 'tiff', 'tif', 'png', 'exr']:
+                if not ext in images_allowed:
                     continue
 
                 sequence_dir = root
