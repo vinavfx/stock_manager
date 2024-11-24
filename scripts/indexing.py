@@ -22,7 +22,7 @@ from python_util.util import jwrite, sh, jread
 
 
 THREAD = 8
-min_sequence_length = 24
+min_sequence_length = 10
 ignore_patterns = ['preview']
 min_pixels = 960 * 540
 
