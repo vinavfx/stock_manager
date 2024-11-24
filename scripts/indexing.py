@@ -24,10 +24,11 @@ from python_util.util import jwrite, sh, jread
 THREAD = 8
 min_sequence_length = 10
 ignore_patterns = ['preview']
-min_pixels = 960 * 540
+min_video_pixels = 960 * 540
+min_image_pixels = 320 * 240
 
 videos_allowed = ['mov', 'mp4']
-images_allowed =  ['jpg', 'jpeg', 'tiff', 'tif', 'png', 'exr']
+images_allowed = ['jpg', 'jpeg', 'tiff', 'tif', 'png', 'exr']
 
 if not os.path.isdir(INDEXED_DIR):
     os.makedirs(INDEXED_DIR)
@@ -67,11 +68,13 @@ def render_stock(_stock):
         total_frames, frame_rate = get_frames(stock_path)
 
     resolution = get_format(stock_path, first_frame, is_sequence)
+    pixels = resolution[0] * resolution[1]
 
-    if not resolution[0]:
+    if not pixels:
         return
 
-    if (resolution[0] * resolution[1]) < min_pixels and total_frames > 1:
+    min_pixels = min_image_pixels if total_frames == 1 else min_video_pixels
+    if pixels < min_pixels:
         return
 
     if os.path.isdir(output_dir):
