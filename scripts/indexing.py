@@ -11,7 +11,7 @@ import re
 import subprocess
 from tqdm import tqdm
 from collections import defaultdict
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures import ProcessPoolExecutor
 
 
 
