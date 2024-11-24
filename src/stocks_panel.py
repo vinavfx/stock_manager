@@ -278,7 +278,7 @@ class stocks(QWidget):
                     continue
 
         folder_items = sorted(folder_items)
-        tag_items = sorted(tag_items)
+        tag_items = sorted(tag_items)[:48]
 
         folder_items.insert(0, 'All')
         tag_items.insert(0, 'All')
