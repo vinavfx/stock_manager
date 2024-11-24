@@ -1,8 +1,0 @@
-✔ Opción para cambiar la ruta general dónde están los stocks, por si los stocks están en otro disco @done(2023-11-06 01:34) @project
-✔ En el filtro de folder incluir subcarpetas @done(2023-11-06 01:35) @project
-✔ Darle prioridad a la carpeta del stock para etiquetarlos y luego al nombre del stock @done(2023-11-06 01:35) @project
-✔ Al crear un nuevo stock en Nuke 12 que quede centrado en el NodeGraph @done(2023-11-06 01:35) @project
-✔ En el menú de los items agregar open 'location in folder' @done(2023-11-06 01:36) @project
-✔ La indexación debe quedar dentro de una carpeta 'indexed' en la misma carpeta donde están los stocks. @done(2023-11-06 01:36) @project
-✘ La indexación ffmpeg solo se ejecuta en un solo hilo por es un hilo, corregir para que funcione multihilos @cancelled(2023-11-06 01:37) @project
-✔ Si conecto el disco de stock una vez nuke esta abierto, la lista de indexed esta vacía y si presiono re indexar borra todo el indexed previo, (antes de re indexar verificar si el disco esta conectado) @done(2024-04-29 14:52) @project
