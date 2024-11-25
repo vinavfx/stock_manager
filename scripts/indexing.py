@@ -228,6 +228,7 @@ def create_thumbnail(indexed_stock):
 
 
 def extract_stocks():
+    print('Scanning Stocks ...')
     stocks = []
     scanned_dirs = []
 
