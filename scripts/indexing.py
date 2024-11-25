@@ -21,9 +21,9 @@ from env import *
 from python_util.util import jwrite, sh, jread
 
 
-THREAD = 8
-min_sequence_length = 10
-ignore_patterns = ['preview']
+THREAD = 32
+min_sequence_length = 24
+ignore_patterns = ['preview', 'EXR']
 min_video_pixels = 960 * 540
 min_image_pixels = 320 * 240
 
@@ -66,6 +66,9 @@ def render_stock(_stock):
     else:
         first_frame = 1
         total_frames, frame_rate = get_frames(stock_path)
+
+    if not total_frames:
+        return
 
     resolution = get_format(stock_path, first_frame, is_sequence)
     pixels = resolution[0] * resolution[1]
@@ -171,8 +174,8 @@ def get_frames(video):
 
     except:
 
-        frame_rate = 24.0
-        frames = 1
+        frame_rate = 0
+        frames = 0
 
     return frames, frame_rate
 
@@ -231,10 +234,10 @@ def extract_stocks():
     for folder in STOCKS_DIRS:
         for root, _, files in os.walk(folder):
             for f in files:
-                if any(p in root for p in ignore_patterns):
+                if any(p in f for p in ignore_patterns):
                     continue
 
-                if any(p in f for p in ignore_patterns):
+                if any(p in root for p in ignore_patterns):
                     continue
 
                 ext = f.split('.')[-1].lower()
