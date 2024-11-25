@@ -344,10 +344,14 @@ def render_wrapper(stock_path):
 
 
 stocks = extract_stocks()
-with ProcessPoolExecutor(max_workers=THREAD) as executor:
-    with tqdm(total=len(stocks), desc='Indexing Stocks', unit=' Stock') as progress_bar:
-        for _ in executor.map(render_wrapper, stocks):
-            progress_bar.update(1)
+
+try:
+    with ProcessPoolExecutor(max_workers=THREAD) as executor:
+        with tqdm(total=len(stocks), desc='Indexing Stocks', unit=' Stock') as progress_bar:
+            for _ in executor.map(render_wrapper, stocks):
+                progress_bar.update(1)
+except:
+    pass
 
 
 stocks_metadata = {}
