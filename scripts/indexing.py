@@ -339,6 +339,41 @@ def delete_corrupt_indexed_stock(name):
     delete_indexed_stock(name)
 
 
+def create_stocks_json():
+    stocks_metadata = {}
+
+    for f in os.listdir(METADATA_DIR):
+        metadata_path = os.path.join(METADATA_DIR, f)
+
+        try:
+            data = jread(metadata_path)
+        except:
+            continue
+
+        path = data['path']
+        del data['path']
+        stocks_metadata[path] = data
+
+    jwrite(os.path.join(INDEXING_DIR, 'stocks.json'), stocks_metadata)
+
+
+def delete_corrupt_stocks():
+    corrupt_metadata = []
+
+    for f in os.listdir(METADATA_DIR):
+        metadata_path = os.path.join(METADATA_DIR, f)
+
+        try:
+            jread(metadata_path)
+        except:
+            corrupt_metadata.append(metadata_path)
+
+    [delete_indexed_stock(f) for f in corrupt_metadata]
+    [delete_corrupt_indexed_stock(f) for f in os.listdir(INDEXED_DIR)]
+    [delete_corrupt_indexed_stock(f) for f in os.listdir(THUMBNAILS_DIR)]
+    [delete_corrupt_indexed_stock(f) for f in os.listdir(METADATA_DIR)]
+
+
 def render_wrapper(stock_path):
     try:
         render_stock(stock_path)
@@ -359,26 +394,5 @@ except:
     pass
 
 
-stocks_metadata = {}
-corrupt_metadata = []
-
-for f in os.listdir(METADATA_DIR):
-    metadata_path = os.path.join(METADATA_DIR, f)
-
-    try:
-        data = jread(metadata_path)
-    except:
-        corrupt_metadata.append(metadata_path)
-        continue
-
-    path = data['path']
-    del data['path']
-    stocks_metadata[path] = data
-
-jwrite(os.path.join(INDEXING_DIR, 'stocks.json'), stocks_metadata)
-
-
-[delete_indexed_stock(f) for f in corrupt_metadata]
-[delete_corrupt_indexed_stock(f) for f in os.listdir(INDEXED_DIR)]
-[delete_corrupt_indexed_stock(f) for f in os.listdir(THUMBNAILS_DIR)]
-[delete_corrupt_indexed_stock(f) for f in os.listdir(METADATA_DIR)]
+delete_corrupt_stocks()
+create_stocks_json()
