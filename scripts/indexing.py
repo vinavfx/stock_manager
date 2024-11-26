@@ -44,13 +44,14 @@ def render_stock(_stock):
     stock, folder = _stock
     is_sequence = type(stock) == tuple
     stock_path = stock[0] if is_sequence else stock
+    padding = stock[1][0][2] if is_sequence else ''
     ext = stock_path.split('.')[-1].lower()
 
     if ext not in videos_allowed and ext not in images_allowed:
         return
 
     name = basename = os.path.basename(stock_path).rsplit('.', 1)[0]
-    basename = name.rsplit('_', 1)[0] if is_sequence else name
+    basename = name.rsplit(padding, 1)[0][:-1] if is_sequence else name
 
     new_name = '{}_{}'.format(
         os.path.basename(os.path.dirname(stock_path)), basename)
@@ -289,8 +290,9 @@ def separate_images_and_sequences(folder):
         match = sequence_pattern.match(file)
         if match:
             base, frame, ext = match.groups()
-            key = f"{folder}/{base}%0{len(frame)}d{ext}"
-            potential_sequences[key].append((file, frame))
+            padding = '%0{}d'.format(len(frame))
+            key = '{}/{}{}{}'.format(folder, base, padding, ext)
+            potential_sequences[key].append((file, frame, padding))
         else:
             unique_images.append(os.path.join(folder, file))
 
