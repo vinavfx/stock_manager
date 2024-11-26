@@ -59,13 +59,15 @@ def render_stock(_stock):
     if os.path.isdir(output_dir):
         return
 
-    if is_sequence:
+    first_frame = 1
+    total_frames = 1
+    frame_rate = 24
+
+    if ext in videos_allowed:
+        total_frames, frame_rate = get_frames(stock_path)
+    elif is_sequence:
         first_frame = int(stock[1][0][1])
         total_frames = len(stock[1])
-        frame_rate = 24
-    else:
-        first_frame = 1
-        total_frames, frame_rate = get_frames(stock_path)
 
     if not total_frames:
         return
