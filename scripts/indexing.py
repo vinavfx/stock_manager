@@ -24,6 +24,7 @@ from python_util.util import jwrite, sh, jread
 THREAD = 32
 min_sequence_length = 24
 ignore_patterns = ['preview', 'EXR']
+force_texture_patterns = ['texture']
 min_video_pixels = 720 * 480
 min_image_pixels = 320 * 240
 
@@ -254,7 +255,7 @@ def extract_stocks():
                 if not ext in images_allowed:
                     continue
 
-                if 'texture' in root.lower():
+                if any(t in root.lower() for t in force_texture_patterns):
                     stocks.append((stock_path, folder))
                     continue
 
