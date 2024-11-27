@@ -344,7 +344,8 @@ def delete_corrupt_indexed_stock(name):
 
 
 def create_stocks_json():
-    stocks_metadata = {}
+    stocks = {}
+    textures = {}
 
     for f in os.listdir(METADATA_DIR):
         metadata_path = os.path.join(METADATA_DIR, f)
@@ -356,11 +357,17 @@ def create_stocks_json():
 
         path = data['path']
         del data['path']
-        stocks_metadata[path] = data
 
-    stocks_metadata = dict(sorted(stocks_metadata.items(),
-                             key=lambda i: i[1]['name'].lower()))
-    jwrite(os.path.join(INDEXING_DIR, 'stocks.json'), stocks_metadata)
+        if data['frames'] == 1:
+            textures[path] = data
+        else:
+            stocks[path] = data
+
+    stocks = dict(sorted(stocks.items(), key=lambda i: i[1]['name'].lower()))
+    textures = dict(sorted(textures.items(), key=lambda i: i[1]['name'].lower()))
+
+    jwrite(os.path.join(INDEXING_DIR, 'stocks.json'), stocks)
+    jwrite(os.path.join(INDEXING_DIR, 'textures.json'), textures)
 
 
 def delete_corrupt_stocks():
