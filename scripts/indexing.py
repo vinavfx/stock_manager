@@ -233,8 +233,10 @@ def create_thumbnail(indexed_stock):
 
 def extract_stocks():
     print('Scanning Stocks ...')
+
     stocks = []
     scanned_dirs = []
+    unique_files = {}
 
     for folder in STOCKS_DIRS:
         for root, _, files in os.walk(folder):
@@ -245,8 +247,15 @@ def extract_stocks():
                 if any(p in root for p in ignore_patterns):
                     continue
 
-                ext = f.split('.')[-1].lower()
                 stock_path = os.path.join(root, f)
+
+                key = (f, os.path.getsize(stock_path))
+                if key in unique_files:
+                    continue
+
+                unique_files[key] = None
+
+                ext = f.split('.')[-1].lower()
 
                 if ext in videos_allowed:
                     stocks.append((stock_path, folder))
