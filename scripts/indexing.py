@@ -358,6 +358,8 @@ def create_stocks_json():
         del data['path']
         stocks_metadata[path] = data
 
+    stocks_metadata = dict(sorted(stocks_metadata.items(),
+                             key=lambda i: i[1]['name'].lower()))
     jwrite(os.path.join(INDEXING_DIR, 'stocks.json'), stocks_metadata)
 
 
