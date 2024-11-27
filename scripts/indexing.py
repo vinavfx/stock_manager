@@ -245,14 +245,17 @@ def extract_stocks():
                     continue
 
                 ext = f.split('.')[-1].lower()
+                stock_path = os.path.join(root, f)
 
                 if ext in videos_allowed:
-                    stock_path = os.path.join(root, f)
-                    if not stock_path in stocks:
-                        stocks.append((stock_path, folder))
+                    stocks.append((stock_path, folder))
                     continue
 
                 if not ext in images_allowed:
+                    continue
+
+                if 'texture' in root.lower():
+                    stocks.append((stock_path, folder))
                     continue
 
                 sequence_dir = root
