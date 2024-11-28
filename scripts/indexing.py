@@ -43,7 +43,7 @@ if not os.path.isdir(METADATA_DIR):
 
 def render_stock(_stock):
     stock, folder = _stock
-    is_sequence = type(stock) == tuple
+    is_sequence = not type(stock) == str
     stock_path = stock[0] if is_sequence else stock
     padding = stock[1][0][2] if is_sequence else ''
     ext = stock_path.split('.')[-1].lower()
@@ -232,6 +232,14 @@ def create_thumbnail(indexed_stock):
 
 
 def extract_stocks():
+    scanning_file = os.path.join(INDEXING_DIR, 'scanning.json')
+
+    try:
+        stocks = jread(scanning_file)
+        return stocks
+    except:
+        pass
+
     print('Scanning Stocks ...')
 
     stocks = []
@@ -279,6 +287,7 @@ def extract_stocks():
                 stocks.extend([(seq, folder) for seq in sequences])
                 stocks.extend([(tex, folder) for tex in textures])
 
+    jwrite(scanning_file, stocks)
     return stocks
 
 
