@@ -156,7 +156,8 @@ class stocks(QWidget):
         self.stock_filter = QComboBox()
         self.stock_filter.setToolTip('Stock Filter')
         self.stock_filter.addItems(['All', 'Stocks', 'Textures'])
-        self.stock_filter.currentTextChanged.connect(self.filter_widget_update)
+        self.stock_filter.setCurrentIndex(1)
+        self.stock_filter.currentTextChanged.connect(self.change_stock_filter)
 
         filter_layout.addWidget(self.search_filter)
         filter_layout.addWidget(self.stock_filter)
@@ -212,8 +213,10 @@ class stocks(QWidget):
 
         self.current_size = 0
         self.is_grid_display = False
-
         self.update_filter = True
+
+        self.visible_stocks = True
+        self.visible_textures = False
 
     def set_size(self, size, set_slider=False):
         self.current_size = size
@@ -229,6 +232,19 @@ class stocks(QWidget):
         self.list_display.setChecked(not grid)
         self.list_widget.set_view_mode(grid)
 
+    def change_stock_filter(self):
+        for _, stock in get_stocks().items():
+            stock['hide'] = True
+            if 'item' in stock:
+                stock['item'].setHidden(True)
+
+        stock_filter = self.stock_filter.currentText().lower()
+
+        self.visible_stocks = stock_filter in ['stocks', 'all']
+        self.visible_textures = stock_filter in ['textures', 'all']
+
+        self.filter_widget_update()
+
     def filter_widget_update(self):
         if not self.update_filter:
             return
@@ -237,7 +253,6 @@ class stocks(QWidget):
 
         current_folder = self.index_folder_filter.currentText()
         current_tag = self.tag_filter.currentText()
-        current_stock = self.stock_filter.currentText()
 
         self.index_folder_filter.clear()
         self.tag_filter.clear()
@@ -247,15 +262,8 @@ class stocks(QWidget):
 
         tag_stocks = []
 
-        for _, stock in get_stocks().items():
+        for _, stock in get_stocks(self.visible_stocks, self.visible_textures).items():
             folder_name = os.path.basename(stock['folder'])
-
-            is_texture = stock['frames'] == 1
-            if current_stock == 'Textures' and not is_texture:
-                continue
-
-            if current_stock == 'Stocks' and is_texture:
-                continue
 
             if not folder_name in folder_items:
                 folder_items.append(folder_name)
@@ -299,11 +307,10 @@ class stocks(QWidget):
         keyword = self.search_filter.text().lower()
         index_folder = self.index_folder_filter.currentText()
         tag_stock = self.tag_filter.currentText().lower()
-        stock_filter = self.stock_filter.currentText().lower()
 
         total_visibles = 0
 
-        for _, stock in get_stocks().items():
+        for _, stock in get_stocks(self.visible_stocks, self.visible_textures).items():
             hide = True
 
             if stock['tag'] == tag_stock or tag_stock == 'all':
@@ -314,14 +321,6 @@ class stocks(QWidget):
                 if (not keyword in stock['tag'] and
                         not keyword in stock['name'].lower()):
 
-                    hide = True
-
-            if not hide and not stock_filter == 'all':
-                is_texture = stock['frames'] == 1
-                if stock_filter == 'textures' and not is_texture:
-                    hide = True
-
-                if stock_filter == 'stocks' and is_texture:
                     hide = True
 
             stock['hide'] = hide
@@ -340,7 +339,7 @@ class stocks(QWidget):
 
         self.list_widget.setVisible(False)
 
-        for path, stock in get_stocks().items():
+        for path, stock in get_stocks(self.visible_stocks, self.visible_textures).items():
             if stock['hide']:
                 continue
 
