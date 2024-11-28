@@ -56,7 +56,7 @@ class status_bar(QWidget):
             '#00ff40' if visibles == total else '#c4c4c4', visibles)
 
         total_text = '<font color="{}">{}</font>'.format(
-            '#00ff40' if visibles == total else '#ff0000', total)
+            '#00ff40' if visibles == total else '#ffbb00', total)
 
         text = '{} {}'.format(visibles_text, total_text)
         self.visibles_label.setText(text)
