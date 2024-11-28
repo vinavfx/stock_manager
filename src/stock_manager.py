@@ -3,8 +3,6 @@
 # OFFICE --------> Senior VFX Compositor, Software Developer
 # WEBSITE -------> https://vinavfx.com
 # -----------------------------------------------------------
-import nuke
-
 from PySide2.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel)
 
 from .player_panel import player
