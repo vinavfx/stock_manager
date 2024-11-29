@@ -13,7 +13,7 @@ STOCKS_DIRS = [os.path.join(root, d) for root in ROOT_STOCKS_DIRS if os.path.exi
     root) for d in os.listdir(root) if os.path.isdir(os.path.join(root, d))]
 
 STOCKS_DIRS = [
-    p for p in STOCKS_DIRS if not 'indexing' in os.path.basename(p).lower()]
+    p for p in STOCKS_DIRS if not os.path.basename(INDEXING_DIR).lower() in os.path.basename(p).lower()]
 
 INDEXED_DIR = os.path.join(INDEXING_DIR, 'indexed')
 THUMBNAILS_DIR = os.path.join(INDEXING_DIR, 'thumbnails')
