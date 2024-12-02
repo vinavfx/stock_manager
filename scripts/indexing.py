@@ -355,7 +355,7 @@ def delete_disconnected_stocks():
         deleted += 1
 
     create_stocks_json()
-    print('{} Stocks Deleted.')
+    print('{} Stocks Deleted.'.format(deleted))
 
 
 def delete_indexed_stock(name):
