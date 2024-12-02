@@ -151,8 +151,15 @@ def get_tag(stock_file):
     parent_name = word_separator(os.path.basename(parent))
     grandparent_name = word_separator(os.path.basename(grandparent))
 
-    if (not grandparent_name) or (parent_name == grandparent_name) or (grandparent_name == root_stock):
+    if not parent_name and not grandparent_name:
+        name = 'no_tag'
+
+    elif not parent_name:
+        name = ' '.join(grandparent_name)
+
+    elif (not grandparent_name) or (parent_name == grandparent_name) or (grandparent_name == root_stock):
         name = ' '.join(parent_name)
+
     else:
         first_name = ' '.join(grandparent_name)
         last_name = ' '.join(parent_name)
