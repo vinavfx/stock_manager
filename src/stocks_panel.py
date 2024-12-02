@@ -304,7 +304,7 @@ class stocks(QWidget):
         if not self.update_filter:
             return
 
-        keyword = self.search_filter.text().lower()
+        keyword = self.search_filter.text().lower().strip().split(' ')
         index_folder = self.index_folder_filter.currentText()
         tag_stock = self.tag_filter.currentText().lower()
 
@@ -318,9 +318,8 @@ class stocks(QWidget):
                     hide = False
 
             if not hide:
-                if (not keyword in stock['tag'] and
-                        not keyword in stock['name'].lower()):
-
+                if (not all(k in stock['tag'] for k in keyword) and
+                        not all(k in stock['name'].lower() for k in keyword)):
                     hide = True
 
             stock['hide'] = hide
