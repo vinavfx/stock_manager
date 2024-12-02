@@ -341,8 +341,8 @@ def delete_disconnected_stocks():
     stocks_data = jread(os.path.join(INDEXING_DIR, 'stocks.json'))
     stocks_data.update(textures_data)
 
+    deleted = 0
     for stock_path, data in stocks_data.items():
-
         if os.path.isfile(stock_path):
             continue
 
@@ -352,9 +352,10 @@ def delete_disconnected_stocks():
                 continue
 
         delete_indexed_stock(data['indexed'])
-        print('delete', data['indexed'])
+        deleted += 1
 
     create_stocks_json()
+    print('{} Stocks Deleted.')
 
 
 def delete_indexed_stock(name):
