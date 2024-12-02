@@ -336,6 +336,27 @@ def separate_images_and_sequences(folder):
     return valid_sequences, unique_images
 
 
+def delete_disconnected_stocks():
+    textures_data = jread(os.path.join(INDEXING_DIR, 'textures.json'))
+    stocks_data = jread(os.path.join(INDEXING_DIR, 'stocks.json'))
+    stocks_data.update(textures_data)
+
+    for stock_path, data in stocks_data.items():
+
+        if os.path.isfile(stock_path):
+            continue
+
+        basename = os.path.basename(stock_path)
+        if any(i in basename for i in ['%', 'd']):
+            if os.path.isdir(os.path.dirname(stock_path)):
+                continue
+
+        delete_indexed_stock(data['indexed'])
+        print('delete', data['indexed'])
+
+    create_stocks_json()
+
+
 def delete_indexed_stock(name):
     basename = os.path.basename(name).rsplit('.', 1)[0]
 
