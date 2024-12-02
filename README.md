@@ -55,8 +55,7 @@ ROOT_STOCKS_DIRS = [
 
 2 - To index (Terminal only)
 ```sh
-cd ~/.nuke/stock_manager/scripts
-python3 indexing.py
+python3 ~/.nuke/stock_manager/scripts/indexing.py
 ```
 
 # Screenshots
