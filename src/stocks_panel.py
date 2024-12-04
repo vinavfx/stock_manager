@@ -70,8 +70,10 @@ class stock_view(QListWidget):
         self.create_read(filename)
 
     def create_read(self, filename):
+        nuke.Root().begin()
         read = nuke.createNode('Read', inpanel=False)
         read.knob('file').fromUserText(filename)
+        nuke.Root().end()
 
 
     def get_filename(self, item):
@@ -212,11 +214,12 @@ class stocks(QWidget):
         layout.addWidget(display_widget)
 
         self.current_size = 0
-        self.is_grid_display = False
+        self.is_grid_display = True
         self.update_filter = True
 
         self.visible_stocks = True
         self.visible_textures = False
+        self.set_size(50, True)
 
     def set_size(self, size, set_slider=False):
         self.current_size = size
